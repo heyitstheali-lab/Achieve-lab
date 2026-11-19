@@ -1,4 +1,13 @@
-# Achieve Coach
+# Achieve Lab
+
+This repo has two study helpers:
+
+- **Nawras** ([`nawras/`](nawras/)): tell it what you're learning or drop in a PDF,
+  then ask it to teach you, make study guides and quizzes, or help you teach it.
+  Runs on claude.ai: https://claude.ai/artifact/FRavbedDN3mMP6xoUvXzSd
+- **Achieve Coach** (below): a desktop hint helper for reading assignments.
+
+## Achieve Coach
 
 A small desktop helper for reading assignments like Achieve3000. Press a hotkey
 and it takes a screenshot of the question you're on. Claude then explains:

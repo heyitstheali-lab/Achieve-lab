@@ -1,0 +1,1130 @@
+<title>Nawras</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap">
+<style>
+/* Layout: one-screen study app. Start screen is a single centered column;
+   the chat view is a topic sidebar + conversation column that stacks on phones. */
+:root {
+  --paper: #f3f6f5;
+  --surface: #ffffff;
+  --sunk: #e8eeec;
+  --ink: #14232a;
+  --muted: #56676e;
+  --line: #d4dedc;
+  --accent: #1d6b60;
+  --accent-ink: #ffffff;
+  --accent-soft: #dcece8;
+  --hi: #f6d55c;
+  --hi-ink: #2a2306;
+  --good: #1f7a46;
+  --good-soft: #def2e5;
+  --bad: #b23a3a;
+  --bad-soft: #f8e2e0;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --radius: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0e1618; --surface: #152023; --sunk: #1b292c; --ink: #e4edeb; --muted: #93a5a7;
+    --line: #26373b; --accent: #5cc0ae; --accent-ink: #062420; --accent-soft: #1b3a36;
+    --hi: #e8c84a; --hi-ink: #221c02; --good: #6fd39a; --good-soft: #173527; --bad: #f08a80; --bad-soft: #3a1d1b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0e1618; --surface: #152023; --sunk: #1b292c; --ink: #e4edeb; --muted: #93a5a7;
+  --line: #26373b; --accent: #5cc0ae; --accent-ink: #062420; --accent-soft: #1b3a36;
+  --hi: #e8c84a; --hi-ink: #221c02; --good: #6fd39a; --good-soft: #173527; --bad: #f08a80; --bad-soft: #3a1d1b;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background: var(--paper); color: var(--ink);
+  font: 16px/1.55 var(--font-body);
+  overflow: hidden;
+}
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+#app { height: 100%; display: grid; grid-template-rows: auto 1fr; grid-template-columns: minmax(0, 1fr); min-height: 0; }
+
+/* ---------- Header ---------- */
+.bar {
+  display: flex; align-items: center; gap: 12px;
+  padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  border-bottom: 1px solid var(--line); background: var(--surface);
+}
+.brand { display: flex; align-items: center; gap: 10px; font: 800 1.25rem/1 var(--font-display); letter-spacing: -0.01em; background: none; border: 0; padding: 0; }
+.mark {
+  width: 34px; height: 34px; flex: none; display: grid; place-items: center;
+  background: var(--accent); color: var(--accent-ink);
+  border-radius: 12px 12px 12px 4px;
+  font: 800 1.1rem/1 var(--font-display);
+}
+.bar .topic-pill {
+  min-width: 0; flex: 1; color: var(--muted); font-size: 0.95rem;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.bar .actions { display: flex; gap: 8px; flex: none; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px;
+  padding: 7px 14px; font-weight: 700; font-size: 0.9rem; text-decoration: none; color: var(--ink);
+  white-space: nowrap;
+}
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn svg { width: 16px; height: 16px; }
+@media (max-width: 560px) { .btn .long { display: none; } .bar .topic-pill { visibility: hidden; } .bar .actions .btn { padding: 7px 11px; } }
+
+/* ---------- Start screen ---------- */
+#start { overflow-y: auto; min-height: 0; }
+.start-inner {
+  max-width: 660px; margin: 0 auto;
+  padding-block: 40px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 28px;
+}
+.hello h1 {
+  font: 800 clamp(2.1rem, 6vw, 3.2rem)/1.02 var(--font-display); letter-spacing: -0.03em; margin: 0 0 12px;
+  text-wrap: balance;
+}
+.hello h1 .hey { background: linear-gradient(transparent 58%, var(--hi) 58%, var(--hi) 92%, transparent 92%); padding: 0 4px; margin: 0 -4px; }
+.hello p { margin: 0; color: var(--muted); font-size: 1.08rem; max-width: 56ch; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.setup { padding: 20px; display: grid; gap: 16px; }
+.setup .lbl { font: 700 0.8rem/1 var(--font-body); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.field { display: grid; gap: 8px; }
+textarea.input {
+  width: 100%; resize: vertical; min-height: 84px; padding: 12px 14px;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--paper);
+}
+textarea.input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+.drop {
+  border: 2px dashed var(--line); border-radius: 12px; padding: 18px; text-align: center;
+  color: var(--muted); background: var(--paper); cursor: pointer; display: grid; gap: 4px; justify-items: center;
+}
+.drop:hover, .drop.over { border-color: var(--accent); color: var(--ink); background: var(--accent-soft); }
+.drop strong { color: var(--ink); }
+.drop svg { width: 26px; height: 26px; color: var(--accent); }
+.docline {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px;
+  background: var(--accent-soft); font-size: 0.95rem; min-width: 0;
+}
+.docline .name { font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.docline .meta { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.docline .x { margin-left: auto; border: 0; background: none; color: var(--muted); font-size: 1.2rem; line-height: 1; padding: 2px 6px; border-radius: 6px; }
+.docline .x:hover { color: var(--ink); background: var(--surface); }
+.docline.err { background: var(--bad-soft); color: var(--bad); }
+.examples { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.examples span { color: var(--muted); font-size: 0.9rem; margin-right: 2px; }
+.chip {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 12px; font-size: 0.9rem;
+}
+.chip:hover { border-color: var(--accent); background: var(--accent-soft); }
+.start-go { display: flex; justify-content: flex-end; }
+.start-go .btn { padding: 11px 20px; font-size: 1rem; }
+.can { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 520px) { .can { grid-template-columns: minmax(0, 1fr); } }
+.can div { padding: 12px 14px; border-radius: 12px; background: var(--sunk); font-size: 0.95rem; }
+.can b { display: block; font-family: var(--font-display); font-size: 1rem; margin-bottom: 2px; }
+.can q { color: var(--muted); quotes: "\201C" "\201D"; }
+.section-h { font: 700 0.8rem/1 var(--font-body); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 10px; }
+.recents { display: grid; gap: 8px; }
+.recent { display: flex; align-items: center; gap: 10px; padding: 10px 12px; min-width: 0; }
+.recent button.open { flex: 1; min-width: 0; text-align: left; border: 0; background: none; padding: 0; display: grid; }
+.recent .t { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.recent .d { color: var(--muted); font-size: 0.85rem; }
+.recent .del { border: 1px solid transparent; background: none; color: var(--muted); border-radius: 8px; padding: 4px 8px; font-size: 0.85rem; }
+.recent .del:hover { border-color: var(--line); color: var(--bad); }
+.recent .del.armed { color: var(--accent-ink); background: var(--bad); }
+
+/* ---------- Chat view ---------- */
+#chat { display: grid; grid-template-columns: 280px minmax(0, 1fr); min-height: 0; }
+#chat[hidden] { display: none; }
+aside.side {
+  border-right: 1px solid var(--line); overflow-y: auto; padding: 20px 16px; display: grid; gap: 20px; align-content: start;
+  background: var(--surface);
+}
+.side .topic h2 { font: 800 1.3rem/1.15 var(--font-display); margin: 4px 0 0; overflow-wrap: anywhere; text-wrap: balance; }
+.side .doc { margin-top: 10px; font-size: 0.9rem; color: var(--muted); overflow-wrap: anywhere; }
+.side .doc b { color: var(--ink); }
+.side .note { font-size: 0.85rem; color: var(--muted); margin: 6px 0 0; }
+.asks { display: grid; gap: 6px; }
+.ask {
+  text-align: left; border: 1px solid var(--line); background: var(--paper); border-radius: 10px; padding: 9px 12px;
+  display: grid; gap: 1px;
+}
+.ask:hover { border-color: var(--accent); background: var(--accent-soft); }
+.ask b { font-size: 0.95rem; }
+.ask small { color: var(--muted); font-size: 0.82rem; }
+.tip { font-size: 0.88rem; color: var(--muted); padding: 12px; border-radius: 10px; background: var(--sunk); }
+.tip b { color: var(--ink); }
+
+.convo { display: grid; grid-template-rows: 1fr auto; min-height: 0; }
+.log { overflow-y: auto; min-height: 0; padding-block: 24px 12px; }
+.log-inner {
+  max-width: 760px; margin: 0 auto; display: grid; gap: 22px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.msg { display: grid; gap: 6px; min-width: 0; }
+.msg.user { justify-items: end; }
+.msg.user .bubble {
+  background: var(--accent-soft); border-radius: 16px 16px 4px 16px; padding: 10px 14px; max-width: min(85%, 560px);
+  white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.msg.user .bubble .wake { background: var(--hi); color: var(--hi-ink); border-radius: 4px; padding: 0 3px; font-weight: 700; }
+.msg.bot { grid-template-columns: 34px minmax(0, 1fr); column-gap: 12px; align-items: start; }
+.msg.bot .mark { width: 30px; height: 30px; font-size: 0.95rem; border-radius: 10px 10px 10px 3px; margin-top: 2px; }
+.msg.bot .body { min-width: 0; display: grid; gap: 8px; }
+.who { font: 700 0.8rem/1 var(--font-body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.md { overflow-wrap: anywhere; }
+.md > :first-child { margin-top: 0; }
+.md > :last-child { margin-bottom: 0; }
+.md h1, .md h2, .md h3, .md h4 { font-family: var(--font-display); line-height: 1.2; margin: 1.1em 0 0.4em; text-wrap: balance; }
+.md h1 { font-size: 1.4rem; } .md h2 { font-size: 1.22rem; } .md h3 { font-size: 1.08rem; } .md h4 { font-size: 1rem; }
+.md p { margin: 0.55em 0; }
+.md ul, .md ol { padding-left: 1.4em; margin: 0.5em 0; }
+.md li { margin: 0.2em 0; }
+.md strong { font-weight: 700; }
+.md code { font-family: var(--font-mono); font-size: 0.9em; background: var(--sunk); padding: 1px 5px; border-radius: 5px; }
+.md pre { background: var(--sunk); padding: 12px 14px; border-radius: 10px; overflow-x: auto; }
+.md pre code { background: none; padding: 0; }
+.md blockquote { margin: 0.6em 0; padding: 4px 14px; border-left: 3px solid var(--hi); color: var(--muted); }
+.md table { border-collapse: collapse; display: block; overflow-x: auto; max-width: 100%; }
+.md th, .md td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+.md th { background: var(--sunk); }
+.md hr { border: 0; border-top: 1px solid var(--line); margin: 1em 0; }
+.md a { color: var(--accent); }
+.thinking { color: var(--muted); display: inline-flex; gap: 4px; align-items: center; }
+.thinking i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: blink 1.2s infinite ease-in-out; }
+.thinking i:nth-child(2) { animation-delay: 0.15s; } .thinking i:nth-child(3) { animation-delay: 0.3s; }
+@keyframes blink { 0%, 80%, 100% { opacity: 0.25; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
+.tools { display: flex; gap: 6px; flex-wrap: wrap; }
+.tool {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 3px 10px; font-size: 0.82rem; color: var(--muted);
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.tool:hover { color: var(--ink); border-color: var(--accent); }
+.tool svg { width: 14px; height: 14px; }
+.errnote { color: var(--bad); font-size: 0.92rem; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+/* Quiz */
+.quiz { padding: 16px; display: grid; gap: 16px; }
+.quiz h3 { margin: 0; font: 800 1.15rem/1.2 var(--font-display); }
+.quiz .progress { color: var(--muted); font-size: 0.88rem; font-variant-numeric: tabular-nums; }
+.qq { display: grid; gap: 8px; }
+.qq .qt { font-weight: 700; }
+.qq .qt span { color: var(--muted); font-variant-numeric: tabular-nums; margin-right: 4px; }
+.choices { display: grid; gap: 6px; }
+.choice {
+  text-align: left; border: 1px solid var(--line); background: var(--paper); border-radius: 10px; padding: 8px 12px;
+  display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 8px; align-items: start; overflow-wrap: anywhere;
+}
+.choice .l { font-weight: 700; color: var(--muted); }
+.choice:hover:not(:disabled) { border-color: var(--accent); }
+.choice:disabled { cursor: default; }
+.choice.right { background: var(--good-soft); border-color: var(--good); }
+.choice.right .l { color: var(--good); }
+.choice.wrong { background: var(--bad-soft); border-color: var(--bad); }
+.choice.wrong .l { color: var(--bad); }
+.why { font-size: 0.92rem; padding: 8px 12px; border-radius: 10px; background: var(--sunk); }
+.why b.ok { color: var(--good); } .why b.no { color: var(--bad); }
+.score { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding-top: 12px; border-top: 1px solid var(--line); }
+.score .num { font: 800 1.6rem/1 var(--font-display); font-variant-numeric: tabular-nums; }
+
+/* Composer */
+.composer-wrap {
+  border-top: 1px solid var(--line); background: var(--surface);
+  padding-block: 10px 12px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.composer-inner { max-width: 760px; margin: 0 auto; display: grid; gap: 8px; }
+.quick { display: none; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.quick::-webkit-scrollbar { display: none; }
+.quick .chip { flex: none; }
+.composer {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; align-items: end;
+  border: 1px solid var(--line); border-radius: 16px; background: var(--paper); padding: 6px 6px 6px 14px;
+}
+.composer:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.composer textarea {
+  border: 0; background: none; resize: none; outline: none; padding: 8px 0; max-height: 180px; min-height: 40px; line-height: 1.45;
+}
+.icon-btn {
+  width: 40px; height: 40px; border-radius: 12px; border: 0; display: grid; place-items: center;
+  background: var(--sunk); color: var(--ink);
+}
+.icon-btn svg { width: 20px; height: 20px; }
+.icon-btn:hover { background: var(--accent-soft); }
+.icon-btn.send { background: var(--accent); color: var(--accent-ink); }
+.icon-btn.send:disabled { opacity: 0.45; cursor: not-allowed; }
+.icon-btn.live { background: var(--bad); color: var(--paper); animation: pulse 1.4s infinite; }
+@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--bad) 50%, transparent); } 50% { box-shadow: 0 0 0 6px transparent; } }
+.hint { font-size: 0.8rem; color: var(--muted); text-align: center; }
+.banner { padding: 10px 14px; border-radius: 10px; background: var(--bad-soft); color: var(--bad); font-size: 0.92rem; }
+
+@media (max-width: 900px) {
+  #chat { grid-template-columns: minmax(0, 1fr); }
+  aside.side { display: none; }
+  .quick { display: flex; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .thinking i, .icon-btn.live { animation: none; }
+}
+</style>
+
+<div id="app">
+  <header class="bar">
+    <button class="brand" id="home" type="button" aria-label="Nawras home"><span class="mark" aria-hidden="true">N</span><span>Nawras</span></button>
+    <div class="topic-pill" id="topicPill"></div>
+    <div class="actions">
+      <a class="btn" id="openClaude" href="https://claude.ai/new" target="_blank" rel="noopener" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>
+        <span><span class="long">Continue in </span>Claude</span>
+      </a>
+      <button class="btn" id="newTopic" type="button" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        <span><span class="long">New </span>topic</span>
+      </button>
+    </div>
+  </header>
+
+  <section id="start">
+    <div class="start-inner">
+      <div class="hello">
+        <h1><span class="hey">Hey,</span> I'm Nawras.</h1>
+        <p>Tell me what you're learning or drop in a PDF. I'll teach it to you, make study guides and quizzes, and help you teach it to someone else.</p>
+      </div>
+
+      <form class="card setup" id="setup" autocomplete="off">
+        <div class="field">
+          <label class="lbl" for="topic">What are you learning?</label>
+          <textarea class="input" id="topic" rows="3" placeholder="e.g. Photosynthesis for my bio test on Friday"></textarea>
+        </div>
+        <div class="field">
+          <span class="lbl">Add your notes or a worksheet (optional)</span>
+          <label class="drop" id="drop" for="file">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 18v-6M9 15l3-3 3 3"/></svg>
+            <span><strong>Choose a PDF</strong> or drop it here</span>
+            <span style="font-size:.85rem">PDF, .txt or .md</span>
+          </label>
+          <input class="sr" type="file" id="file" accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown">
+          <div class="docline" id="docline" hidden></div>
+        </div>
+        <div class="examples" aria-label="Examples">
+          <span>Try:</span>
+          <button class="chip" type="button" data-ex="Photosynthesis for my biology test">Photosynthesis</button>
+          <button class="chip" type="button" data-ex="Solving two-step equations like 3x + 5 = 20">Two-step equations</button>
+          <button class="chip" type="button" data-ex="The causes of World War I">Causes of WWI</button>
+          <button class="chip" type="button" data-ex="Adding fractions with different denominators">Adding fractions</button>
+        </div>
+        <div class="start-go">
+          <button class="btn primary" id="go" type="submit" disabled>Start with Nawras</button>
+        </div>
+      </form>
+
+      <div>
+        <p class="section-h">Then just ask</p>
+        <div class="can">
+          <div><b>Teach me</b><q>Hey Nawras, help me with this</q></div>
+          <div><b>Study guide</b><q>Hey Nawras, make me a study guide about this</q></div>
+          <div><b>Step by step</b><q>Hey Nawras, how do I add this to this?</q></div>
+          <div><b>Quiz</b><q>Hey Nawras, make me a quiz like that</q></div>
+        </div>
+      </div>
+
+      <div id="recentsWrap" hidden>
+        <p class="section-h">Pick up where you left off</p>
+        <div class="recents" id="recents"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="chat" hidden>
+    <aside class="side">
+      <div class="topic">
+        <div class="who">You're learning</div>
+        <h2 id="sideTopic"></h2>
+        <div class="doc" id="sideDoc"></div>
+      </div>
+      <div>
+        <p class="section-h">Ask Nawras to</p>
+        <div class="asks" id="asks"></div>
+      </div>
+      <div class="tip" id="voiceTip" hidden><b>Talk to Nawras.</b> Tap the mic, say "Hey Nawras, …", then tap it again to send.</div>
+    </aside>
+
+    <div class="convo">
+      <div class="log" id="log" aria-live="polite"><div class="log-inner" id="logInner"></div></div>
+      <div class="composer-wrap">
+        <div class="composer-inner">
+          <div class="banner" id="banner" hidden></div>
+          <div class="quick" id="quick"></div>
+          <form class="composer" id="composer">
+            <label class="sr" for="msg">Message Nawras</label>
+            <textarea id="msg" rows="1" placeholder="Hey Nawras, make me a study guide…"></textarea>
+            <button class="icon-btn" id="mic" type="button" aria-label="Talk to Nawras" hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+            </button>
+            <button class="icon-btn send" id="send" type="submit" aria-label="Send" disabled>
+              <svg id="sendIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+          </form>
+          <div class="hint" id="hint">Enter to send · Shift+Enter for a new line</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+<script>
+(() => {
+  "use strict";
+
+  // ---------- constants ----------
+  const STORE_KEY = "nawras.v1";
+  const MAX_DOC_CHARS = 120000;      // keeps every request well under the 256 KiB limit
+  const MAX_INPUT_BYTES = 230000;
+  const PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+  const SEND_SVG = '<path d="M5 12h14M13 6l6 6-6 6"/>';
+  const STOP_SVG = '<rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor"/>';
+  const SPEAK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+  const COPY_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a1 1 0 0 1 1-1h10"/></svg>';
+
+  // "Hey Nawras" plus the ways speech-to-text tends to hear it.
+  const WAKE = /^\s*(?:(?:hey|hi|hello|ok|okay|yo)[\s,]+)?(?:nawras|nauras|nowras|nawrus|narwas|nawress|nauress|narrator|norris|noras|nora's|now ras|naw ras|nau ras)\b[\s,.!:?-]*/i;
+
+  const ASKS = [
+    { label: "Teach me this", sub: "Step by step, from the start", text: "Hey Nawras, teach me this step by step." },
+    { label: "Make a study guide", sub: "Key ideas, terms, practice", text: "Hey Nawras, make me a study guide about this." },
+    { label: "Quiz me", sub: "5 multiple-choice questions", text: "Hey Nawras, make me a quiz about this." },
+    { label: "How do I…", sub: "Walk me through a problem", fill: "Hey Nawras, how do I " },
+    { label: "Explain it simpler", sub: "Say that again, easier", text: "Hey Nawras, explain that again in a simpler way." },
+    { label: "Help me teach it", sub: "A mini lesson plan for others", text: "Hey Nawras, help me teach this to someone else." },
+  ];
+
+  const $ = (s) => document.querySelector(s);
+  const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+
+  // ---------- state ----------
+  let store = { sessions: [], currentId: null };
+  let cur = null;             // current session
+  let draftDoc = null;        // doc picked on the start screen, before starting
+  let pageImages = {};        // sessionId -> Blob[] for scanned PDFs (memory only)
+  let sample = null, tts = null, dict = null;
+  let imageLimits = null;
+  let busy = false, ctl = null;
+  let samplingDead = false;
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (raw) { const s = JSON.parse(raw); if (s && Array.isArray(s.sessions)) store = s; }
+    } catch (_) { /* storage blocked: start fresh */ }
+  }
+  function save() {
+    const attempt = (data) => { localStorage.setItem(STORE_KEY, JSON.stringify(data)); };
+    try { attempt(store); return; } catch (_) {}
+    try { // quota: keep chats, trim the stored documents
+      const slim = { ...store, sessions: store.sessions.map((s) => ({ ...s, docText: (s.docText || "").slice(0, 20000) })) };
+      attempt(slim);
+    } catch (_) {}
+  }
+
+  // ---------- capabilities ----------
+  async function boot() {
+    const use = window.claude && window.claude.use ? window.claude.use.bind(window.claude) : null;
+    if (!use) { markNoClaude(); return; }
+    use("sample").then(async (s) => {
+      sample = s;
+      if (!s) { markNoClaude(); return; }
+      try { const lim = await s.limits(); imageLimits = lim && lim.images ? lim.images : null; } catch (_) { imageLimits = null; }
+    });
+    use("tts").then((t) => {
+      tts = t;
+      if (t) { try { t.onState(({ state }) => { speaking = state !== "idle"; refreshSpeakButtons(); }); } catch (_) {} }
+      rerenderLog();
+    });
+    use("dictation").then((d) => {
+      dict = d;
+      if (!d) return;
+      $("#mic").hidden = false;
+      $("#voiceTip").hidden = false;
+      wireDictation();
+    });
+  }
+  function markNoClaude() {
+    samplingDead = true;
+    showBanner("Nawras talks through your Claude account, so open this page on claude.ai to chat. You can still use “Continue in Claude” above.");
+  }
+  function showBanner(text) { const b = $("#banner"); b.textContent = text; b.hidden = !text; }
+
+  // ---------- views ----------
+  function showStart() {
+    if (busy && ctl) ctl.abort();
+    cur = null; store.currentId = null; save();
+    $("#start").hidden = false; $("#chat").hidden = true;
+    $("#openClaude").hidden = true; $("#newTopic").hidden = true; $("#topicPill").textContent = "";
+    renderRecents();
+    updateGo();
+  }
+  function showChat(session) {
+    cur = session; store.currentId = session.id; save();
+    $("#start").hidden = true; $("#chat").hidden = false;
+    $("#openClaude").hidden = false; $("#newTopic").hidden = false;
+    $("#topicPill").textContent = session.topic;
+    $("#sideTopic").textContent = session.topic;
+    renderDocInfo();
+    updateClaudeLink();
+    rerenderLog();
+    updateSend();
+    setTimeout(() => $("#msg").focus(), 0);
+  }
+  function renderDocInfo() {
+    const d = $("#sideDoc"); d.textContent = "";
+    if (!cur.docName) { d.textContent = "No file. Nawras teaches from what it knows."; return; }
+    const b = el("b", null, cur.docName); d.append(b);
+    const bits = [];
+    if (cur.docPages) bits.push(cur.docPages + (cur.docPages === 1 ? " page" : " pages"));
+    if (cur.docWords) bits.push(cur.docWords.toLocaleString() + " words");
+    if (bits.length) d.append(document.createTextNode(" · " + bits.join(" · ")));
+    if (cur.scanned) {
+      const n = el("p", "note");
+      n.textContent = pageImages[cur.id] ? "Scanned pages: Nawras reads them as pictures while this tab stays open." : "This was a scanned PDF. Start a new topic and add it again so Nawras can see it.";
+      d.append(n);
+    }
+    if (cur.docTruncated) d.append(el("p", "note", "Long file: Nawras reads the first part."));
+  }
+
+  // ---------- start screen ----------
+  function updateGo() {
+    $("#go").disabled = !($("#topic").value.trim() || (draftDoc && !draftDoc.error && !draftDoc.loading));
+  }
+  function renderDocline() {
+    const dl = $("#docline"); dl.textContent = ""; dl.className = "docline";
+    if (!draftDoc) { dl.hidden = true; $("#drop").hidden = false; updateGo(); return; }
+    dl.hidden = false; $("#drop").hidden = true;
+    if (draftDoc.error) dl.classList.add("err");
+    dl.append(el("span", "name", draftDoc.name));
+    let meta = "";
+    if (draftDoc.loading) meta = draftDoc.progress || "Reading…";
+    else if (draftDoc.error) meta = draftDoc.error;
+    else {
+      const bits = [];
+      if (draftDoc.pages) bits.push(draftDoc.pages + (draftDoc.pages === 1 ? " page" : " pages"));
+      if (draftDoc.scanned) bits.push("scanned");
+      else bits.push(draftDoc.words.toLocaleString() + " words");
+      meta = bits.join(" · ");
+    }
+    dl.append(el("span", "meta", meta));
+    const x = el("button", "x", "×"); x.type = "button"; x.setAttribute("aria-label", "Remove file");
+    x.onclick = () => { draftDoc = null; $("#file").value = ""; renderDocline(); };
+    dl.append(x);
+    updateGo();
+  }
+
+  function loadScript(src) {
+    return new Promise((res, rej) => {
+      const s = document.createElement("script"); s.src = src; s.onload = res;
+      s.onerror = () => rej(new Error("Couldn't load the PDF reader."));
+      document.head.appendChild(s);
+    });
+  }
+  let pdfjsP = null;
+  function getPdfjs() {
+    if (!pdfjsP) {
+      pdfjsP = (async () => {
+        await loadScript(PDFJS + "pdf.min.js");
+        await loadScript(PDFJS + "pdf.worker.min.js"); // runs the worker on the page; separate workers are blocked here
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + "pdf.worker.min.js";
+        return window.pdfjsLib;
+      })().catch((e) => { pdfjsP = null; throw e; });
+    }
+    return pdfjsP;
+  }
+
+  async function readFile(file) {
+    const doc = { name: file.name, loading: true, text: "", pages: 0, words: 0 };
+    draftDoc = doc; renderDocline();
+    try {
+      const isPdf = /\.pdf$/i.test(file.name) || file.type === "application/pdf";
+      if (!isPdf) {
+        doc.text = (await file.text()).trim();
+      } else {
+        const pdfjs = await getPdfjs();
+        const pdf = await pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()), isEvalSupported: false }).promise;
+        doc.pages = pdf.numPages;
+        const parts = [];
+        for (let i = 1; i <= pdf.numPages; i++) {
+          if (draftDoc !== doc) return;
+          doc.progress = `Reading page ${i} of ${pdf.numPages}…`; renderDocline();
+          const page = await pdf.getPage(i);
+          const tc = await page.getTextContent();
+          const t = tc.items.map((it) => (it.str || "") + (it.hasEOL ? "\n" : " ")).join("").replace(/[ \t]+/g, " ").trim();
+          parts.push(`[Page ${i}]\n${t}`);
+        }
+        doc.text = parts.join("\n\n");
+        const realChars = doc.text.replace(/\[Page \d+\]/g, "").replace(/\s+/g, "").length;
+        if (realChars < 80 * Math.min(pdf.numPages, 3)) {
+          // Little or no text: a scanned worksheet. Send the pages as pictures instead.
+          doc.scanned = true; doc.text = "";
+          const max = Math.min(pdf.numPages, imageLimits ? imageLimits.maxCount : 0, 6);
+          if (!max) throw new Error("This PDF is scanned (no text inside). Type what it's about instead.");
+          doc.images = [];
+          for (let i = 1; i <= max; i++) {
+            doc.progress = `Scanning page ${i} of ${max}…`; renderDocline();
+            doc.images.push(await pageToBlob(await pdf.getPage(i)));
+          }
+        }
+      }
+      if (!doc.scanned && !doc.text) throw new Error("No text found in this file.");
+      doc.words = doc.text ? doc.text.split(/\s+/).filter(Boolean).length : 0;
+      doc.truncated = doc.text.length > MAX_DOC_CHARS;
+      doc.loading = false;
+    } catch (e) {
+      doc.loading = false;
+      doc.error = (e && e.message && e.message.length < 120) ? e.message : "Couldn't read that file.";
+    }
+    if (draftDoc === doc) renderDocline();
+  }
+  async function pageToBlob(page) {
+    const base = page.getViewport({ scale: 1 });
+    const scale = Math.min(2.5, 1400 / Math.max(base.width, base.height));
+    const vp = page.getViewport({ scale });
+    const c = document.createElement("canvas"); c.width = Math.round(vp.width); c.height = Math.round(vp.height);
+    const ctx = c.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height);
+    await page.render({ canvasContext: ctx, viewport: vp }).promise;
+    return await new Promise((res) => c.toBlob(res, "image/jpeg", 0.85));
+  }
+
+  function startSession() {
+    let topic = $("#topic").value.trim();
+    const doc = draftDoc && !draftDoc.error && !draftDoc.loading ? draftDoc : null;
+    if (!topic && doc) topic = doc.name.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ");
+    if (!topic) return;
+    const s = {
+      id: "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      topic: topic.slice(0, 300),
+      createdAt: Date.now(), updatedAt: Date.now(),
+      docName: doc ? doc.name : "", docText: doc ? doc.text.slice(0, MAX_DOC_CHARS) : "",
+      docPages: doc ? doc.pages : 0, docWords: doc ? doc.words : 0,
+      docTruncated: !!(doc && doc.truncated), scanned: !!(doc && doc.scanned),
+      turns: [],
+    };
+    if (doc && doc.images) pageImages[s.id] = doc.images;
+    store.sessions.unshift(s);
+    store.sessions = store.sessions.slice(0, 12);
+    draftDoc = null; $("#file").value = ""; $("#topic").value = ""; renderDocline();
+    showChat(s);
+    send("Hey Nawras, give me a quick overview of what I'm learning and where we should start.");
+  }
+
+  function renderRecents() {
+    const list = $("#recents"); list.textContent = "";
+    const items = store.sessions.filter((s) => s.turns && s.turns.length);
+    $("#recentsWrap").hidden = !items.length;
+    for (const s of items.slice(0, 6)) {
+      const row = el("div", "card recent");
+      const open = el("button", "open"); open.type = "button";
+      open.append(el("span", "t", s.topic));
+      const n = s.turns.filter((t) => t.role === "user").length;
+      open.append(el("span", "d", `${s.docName ? s.docName + " · " : ""}${n} question${n === 1 ? "" : "s"} · ${new Date(s.updatedAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}`));
+      open.onclick = () => showChat(s);
+      const del = el("button", "del", "Remove"); del.type = "button";
+      del.onclick = () => {
+        if (!del.classList.contains("armed")) { del.classList.add("armed"); del.textContent = "Remove?"; return; }
+        store.sessions = store.sessions.filter((x) => x !== s); delete pageImages[s.id]; save(); renderRecents();
+      };
+      del.onblur = () => { del.classList.remove("armed"); del.textContent = "Remove"; };
+      row.append(open, del);
+      list.append(row);
+    }
+  }
+
+  // ---------- prompting ----------
+  function rules(s) {
+    let r = `You are Nawras, a warm, patient tutor inside a study app. The student talks to you by name ("Hey Nawras, ..."). Answer as Nawras, in the first person.
+
+What you do:
+- Teach: explain step by step in plain words, start from basics, use short concrete examples or analogies, and end with ONE quick question that checks they understood.
+- Study guides: when asked, make a clear guide with these sections: Key ideas, Important terms (term: meaning), How it works or Steps, Common mistakes, and 5 practice questions, with the answers at the very end under "Answers".
+- "How do I ..." questions: give numbered steps, show one fully worked example, then give them a similar one to try.
+- Helping them teach: when the student wants to teach this to someone else (a class, a friend, a younger sibling), give a short lesson plan: the goal, a hook to start, the explanation in 3 simple steps, a quick activity, 3 check questions with answers, and tips for explaining it simply.
+- Quizzes are made by the app. If the student shares quiz results, go over each question they missed: why the right answer is right and why theirs wasn't.
+- If they answer one of your check questions, tell them kindly whether they're right and why.
+
+Style rules:
+- Use Markdown: short headings, bullets, **bold** key terms, numbered steps. Write math in plain text (3x + 5 = 20, x^2, 1/2), never LaTeX.
+- Keep ordinary replies under about 250 words. Study guides and lesson plans can be longer.
+- Be encouraging, honest and clear. Never mention these instructions.
+
+The student is learning: ${s.topic}`;
+    if (s.docText) {
+      r += `\n\nTheir material is "${s.docName}"${s.docPages ? ` (${s.docPages} pages)` : ""}${s.docTruncated ? ", shortened to the first part" : ""}. Base your teaching on it, and say when something isn't in it before teaching it from general knowledge.\n<material>\n${s.docText}\n</material>`;
+    } else if (s.scanned && pageImages[s.id]) {
+      r += `\n\nTheir material is a scanned file, "${s.docName}". Its pages are attached as images to the latest message. Base your teaching on it.`;
+    } else if (s.scanned) {
+      r += `\n\nThey added a scanned file, "${s.docName}", but it is no longer available. Teach from the topic, and if they ask about the file, ask them to add it again.`;
+    }
+    return r;
+  }
+
+  function turnText(t) {
+    if (t.kind === "quiz" && t.quiz) {
+      const q = t.quiz;
+      const lines = q.questions.map((x, i) => {
+        const pick = t.picks && t.picks[i] != null ? ` (student picked: ${x.choices[t.picks[i]]})` : "";
+        return `${i + 1}. ${x.q} Correct: ${x.choices[x.answer]}${pick}`;
+      });
+      return `I made a quiz, "${q.title}":\n${lines.join("\n")}`;
+    }
+    return t.content || "";
+  }
+
+  function buildMessages(s, extraUser) {
+    const r = rules(s);
+    const enc = new TextEncoder();
+    let budget = MAX_INPUT_BYTES - enc.encode(r).length - (extraUser ? enc.encode(extraUser).length : 0);
+    const turns = [];
+    const src = s.turns.filter((t) => !t.error || t.content);
+    for (let i = src.length - 1; i >= 0; i--) {
+      const content = turnText(src[i]).trim();
+      if (!content) continue;
+      const size = enc.encode(content).length;
+      if (size > budget && turns.length) break;
+      budget -= size;
+      turns.unshift({ role: src[i].role === "user" ? "user" : "assistant", content });
+    }
+    while (turns.length && turns[0].role !== "user") turns.shift();
+    const msgs = [{ role: "user", content: r }, ...turns];
+    if (extraUser) msgs.push({ role: "user", content: extraUser });
+    return msgs;
+  }
+
+  function stripWake(text) {
+    const m = text.match(WAKE);
+    return (m ? text.slice(m[0].length) : text).trim();
+  }
+  const isQuiz = (t) => /\b(quiz me|test me|practice test)\b|\b(make|give|create|write|generate|another|new|harder|easier|do)\b[^.?!]*\bquiz/i.test(t);
+
+  function errorCopy(e) {
+    const code = e && e.code;
+    switch (code) {
+      case "not_granted": samplingDead = true; return "This page isn't allowed to use Claude, so Nawras can't answer. Reload and choose Allow to turn it on.";
+      case "sampling_disabled": samplingDead = true; return "Claude isn't available on this account.";
+      case "not_declared": case "capability_disabled": case "capability_removed": samplingDead = true; return "Nawras can't reach Claude in this view. Try opening the page on claude.ai.";
+      case "rate_limited": return "You've hit a usage limit for now. Wait a bit, then try again.";
+      case "session_expired": return "Your Claude sign-in expired. Sign in again, then try again.";
+      case "refused": return "Nawras can't help with that one. Try asking it another way.";
+      case "prompt_too_large": return "That's too much text at once. Start a new topic with a shorter file.";
+      case "empty_completion": return "Nawras didn't come up with anything. Try asking a bit differently.";
+      case "invalid_json": return "The quiz came out garbled. Try asking for it again.";
+      case "images_unavailable": case "image_rejected": return "Nawras couldn't look at the scanned pages. Type what the file is about instead.";
+      default: return "Couldn't reach Claude. Check your connection and try again.";
+    }
+  }
+
+  // ---------- sending ----------
+  async function send(raw) {
+    const text = (raw || "").trim();
+    if (!text || busy || !cur) return;
+    const s = cur;
+    s.turns.push({ role: "user", content: text });
+    s.updatedAt = Date.now(); save();
+    appendTurn(s.turns[s.turns.length - 1]);
+    await respond(s);
+  }
+
+  async function respond(s) {
+    const last = s.turns[s.turns.length - 1];
+    const ask = stripWake(last.content) || "Hi!";
+    if (!sample) {
+      const t = { role: "assistant", content: "", error: samplingDead ? "Open this page on claude.ai to talk to Nawras." : "Still connecting to Claude. Try again in a moment." };
+      s.turns.push(t); save(); appendTurn(t); return;
+    }
+    if (isQuiz(ask)) return runQuiz(s, ask);
+    return runChat(s);
+  }
+
+  function imagesFor(s) {
+    return s.scanned && pageImages[s.id] && imageLimits ? pageImages[s.id].slice(0, imageLimits.maxCount) : undefined;
+  }
+
+  async function runChat(s) {
+    const t = { role: "assistant", content: "" };
+    s.turns.push(t);
+    const view = appendTurn(t, true);
+    setBusy(true);
+    ctl = new AbortController();
+    let raf = 0, latest = "";
+    try {
+      const opts = {
+        cache: false, signal: ctl.signal,
+        onText: ({ text }) => {
+          latest = text;
+          if (!raf) raf = requestAnimationFrame(() => { raf = 0; view.setText(latest); });
+        },
+      };
+      const imgs = imagesFor(s);
+      if (imgs && imgs.length) opts.images = imgs;
+      const res = await sample(buildMessages(s), opts);
+      cancelAnimationFrame(raf); raf = 0;
+      t.content = res.text;
+      if (res.truncated) t.content += "\n\n*(I ran out of room there. Ask me to keep going.)*";
+    } catch (e) {
+      cancelAnimationFrame(raf); raf = 0;
+      t.content = (e && e.code !== "refused" && e.text) || "";
+      if (!e || e.code !== "cancelled") t.error = errorCopy(e);
+      else if (!t.content) { s.turns.pop(); view.remove(); }
+    } finally {
+      ctl = null; setBusy(false);
+      s.updatedAt = Date.now(); save();
+      if (s.turns.includes(t)) view.finish();
+    }
+  }
+
+  async function runQuiz(s, ask) {
+    const t = { role: "assistant", kind: "quiz", content: "", quiz: null, picks: [] };
+    s.turns.push(t);
+    const view = appendTurn(t, true);
+    setBusy(true);
+    ctl = new AbortController();
+    const n = (ask.match(/\b(\d{1,2})\b/) || [])[1];
+    const count = Math.max(3, Math.min(15, n ? parseInt(n, 10) : 5));
+    const instruction = `The student asked: "${ask}"
+
+Write a multiple-choice quiz about what they're learning${s.docText || s.scanned ? ", based on their material" : ""}. Use ${count} questions unless they clearly asked for a different number (at most 15). If they said "like that" or similar, match the style of what we were just discussing. Mix easier and harder questions. Each question has exactly 4 choices and exactly one correct answer. Vary which position the correct answer is in.
+
+Reply with only JSON in this exact shape, no other text:
+{"title": "short quiz title", "questions": [{"q": "question text", "choices": ["A", "B", "C", "D"], "answer": 0, "why": "one sentence explaining the correct answer"}]}
+"answer" is the 0-based index of the correct choice. Write math in plain text, not LaTeX.`;
+    try {
+      const msgs = buildMessages(s, instruction);
+      const opts = { cache: false, signal: ctl.signal };
+      const imgs = imagesFor(s);
+      if (imgs && imgs.length) opts.images = imgs;
+      const data = await sample.json(msgs, opts);
+      const quiz = cleanQuiz(data);
+      if (!quiz) throw { code: "invalid_json" };
+      t.quiz = quiz;
+      t.content = "";
+    } catch (e) {
+      if (e && e.code === "cancelled") { s.turns.pop(); view.remove(); }
+      else { t.kind = undefined; t.error = errorCopy(e); }
+    } finally {
+      ctl = null; setBusy(false);
+      s.updatedAt = Date.now(); save();
+      if (s.turns.includes(t)) view.finish();
+    }
+  }
+
+  function cleanQuiz(d) {
+    if (!d || !Array.isArray(d.questions)) return null;
+    const qs = d.questions.map((x) => {
+      if (!x || typeof x.q !== "string" || !Array.isArray(x.choices)) return null;
+      const choices = x.choices.map((c) => String(c)).filter((c) => c.trim()).slice(0, 6);
+      const answer = Number(x.answer);
+      if (choices.length < 2 || !Number.isInteger(answer) || answer < 0 || answer >= choices.length) return null;
+      return { q: x.q, choices, answer, why: typeof x.why === "string" ? x.why : "" };
+    }).filter(Boolean);
+    if (!qs.length) return null;
+    return { title: typeof d.title === "string" && d.title.trim() ? d.title.trim() : "Quiz", questions: qs };
+  }
+
+  // ---------- rendering ----------
+  let speaking = false, speakingTurn = null;
+
+  function mdToHtml(text) {
+    try {
+      if (window.marked && window.DOMPurify) {
+        return window.DOMPurify.sanitize(window.marked.parse(text, { gfm: true, breaks: false }));
+      }
+    } catch (_) {}
+    const esc = text.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    return esc.split(/\n{2,}/).map((p) => `<p>${p.replace(/\n/g, "<br>")}</p>`).join("");
+  }
+  if (window.DOMPurify) {
+    window.DOMPurify.addHook("afterSanitizeAttributes", (node) => {
+      if (node.tagName === "A") { node.setAttribute("target", "_blank"); node.setAttribute("rel", "noopener"); }
+    });
+  }
+
+  function nearBottom() { const l = $("#log"); return l.scrollHeight - l.scrollTop - l.clientHeight < 120; }
+  function toBottom() { const l = $("#log"); l.scrollTop = l.scrollHeight; }
+
+  function rerenderLog() {
+    if (!cur) return;
+    const li = $("#logInner"); li.textContent = "";
+    for (const t of cur.turns) appendTurn(t, false, true);
+    toBottom();
+  }
+
+  function userBubble(text) {
+    const b = el("div", "bubble");
+    const m = text.match(WAKE);
+    if (m) {
+      const w = el("span", "wake", m[0].trim().replace(/[,.!:?-]+$/, ""));
+      b.append(w, document.createTextNode(" " + text.slice(m[0].length).trim()));
+    } else b.textContent = text;
+    return b;
+  }
+
+  // Returns a small controller for a bot message: setText, finish, remove.
+  function appendTurn(t, live, quiet) {
+    const li = $("#logInner");
+    const stick = quiet || nearBottom();
+    if (t.role === "user") {
+      const m = el("div", "msg user"); m.append(userBubble(t.content)); li.append(m);
+      if (stick) toBottom();
+      return null;
+    }
+    const m = el("div", "msg bot");
+    const mark = el("span", "mark", "N"); mark.setAttribute("aria-hidden", "true");
+    const body = el("div", "body");
+    body.append(el("div", "who", "Nawras"));
+    const content = el("div", "md");
+    body.append(content);
+    m.append(mark, body); li.append(m);
+
+    const thinking = () => { content.innerHTML = '<span class="thinking" aria-label="Nawras is thinking"><i></i><i></i><i></i></span>'; };
+    const api = {
+      setText(text) { const s = nearBottom(); content.innerHTML = mdToHtml(text); if (s) toBottom(); },
+      remove() { m.remove(); },
+      finish() {
+        content.textContent = "";
+        if (t.kind === "quiz" && t.quiz) { content.className = ""; content.append(renderQuiz(t)); }
+        else if (t.content) { content.className = "md"; content.innerHTML = mdToHtml(t.content); }
+        body.querySelectorAll(".tools, .errnote").forEach((n) => n.remove());
+        if (t.content && !t.error) body.append(toolsFor(t, content));
+        if (t.error) {
+          const er = el("div", "errnote"); er.append(el("span", null, t.error));
+          if (!samplingDead && cur && cur.turns[cur.turns.length - 1] === t) {
+            const again = el("button", "btn", "Try again"); again.type = "button";
+            again.onclick = () => { if (busy) return; cur.turns.pop(); m.remove(); save(); respond(cur); };
+            er.append(again);
+          }
+          body.append(er);
+        }
+        if (stick) toBottom();
+      },
+    };
+    if (live) thinking(); else api.finish();
+    if (stick) toBottom();
+    return api;
+  }
+
+  function toolsFor(t, content) {
+    const row = el("div", "tools");
+    const copy = el("button", "tool"); copy.type = "button"; copy.innerHTML = COPY_SVG + "<span>Copy</span>";
+    copy.onclick = async () => {
+      try { await navigator.clipboard.writeText(t.content); copy.lastChild.textContent = "Copied"; }
+      catch (_) { const r = document.createRange(); r.selectNodeContents(content); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); copy.lastChild.textContent = "Selected"; }
+      setTimeout(() => { copy.lastChild.textContent = "Copy"; }, 1600);
+    };
+    row.append(copy);
+    if (tts) {
+      const sp = el("button", "tool speak"); sp.type = "button"; sp._turn = t;
+      sp.innerHTML = SPEAK_SVG + "<span>Listen</span>";
+      sp.onclick = () => speak(t, content);
+      row.append(sp);
+    }
+    return row;
+  }
+  function refreshSpeakButtons() {
+    document.querySelectorAll(".tool.speak").forEach((b) => {
+      b.lastChild.textContent = speaking && speakingTurn === b._turn ? "Stop" : "Listen";
+    });
+  }
+  function speak(t, content) {
+    if (!tts) return;
+    if (speaking && speakingTurn === t) { tts.stop().catch(() => {}); return; }
+    const lines = [];
+    const paras = content.innerText.split(/\n{2,}/).map((p) => p.replace(/\s+/g, " ").trim()).filter(Boolean);
+    for (const p of paras) {
+      for (let i = 0; i < p.length; i += 1800) lines.push({ text: p.slice(i, i + 1800) });
+      if (lines.length >= 100) break;
+    }
+    if (!lines.length) return;
+    speakingTurn = t; speaking = true; refreshSpeakButtons();
+    tts.speak(lines.slice(0, 100), { voice: "rounded" }).catch((e) => {
+      if (e && e.code === "not_granted") { tts = null; document.querySelectorAll(".tool.speak").forEach((b) => b.remove()); }
+    });
+  }
+
+  function renderQuiz(t) {
+    const q = t.quiz; t.picks = t.picks || [];
+    const card = el("div", "card quiz");
+    const head = el("div"); head.append(el("h3", null, q.title));
+    const prog = el("div", "progress"); head.append(prog);
+    card.append(head);
+    const scoreBox = el("div", "score"); scoreBox.hidden = true;
+    const letters = "ABCDEF";
+
+    const update = () => {
+      const answered = t.picks.filter((p) => p != null).length;
+      const right = q.questions.filter((x, i) => t.picks[i] === x.answer).length;
+      prog.textContent = `${answered} of ${q.questions.length} answered`;
+      if (answered === q.questions.length) {
+        scoreBox.hidden = false; scoreBox.textContent = "";
+        scoreBox.append(el("span", "num", `${right}/${q.questions.length}`));
+        const msg = right === q.questions.length ? "Perfect score!" : right >= q.questions.length * 0.7 ? "Nice work." : "Good practice. Let's fix the ones you missed.";
+        scoreBox.append(el("span", null, msg));
+        const btn = el("button", "btn primary"); btn.type = "button";
+        if (right < q.questions.length) {
+          btn.textContent = "Go over my mistakes";
+          btn.onclick = () => {
+            const missed = q.questions.map((x, i) => t.picks[i] !== x.answer ? `#${i + 1}` : null).filter(Boolean).join(", ");
+            send(`Hey Nawras, I got ${right}/${q.questions.length} on the quiz. Go over the ones I missed (${missed}).`);
+          };
+        } else {
+          btn.textContent = "Make it harder";
+          btn.onclick = () => send("Hey Nawras, make me a harder quiz like that.");
+        }
+        scoreBox.append(btn);
+      }
+    };
+
+    q.questions.forEach((x, i) => {
+      const box = el("div", "qq");
+      const qt = el("div", "qt"); qt.append(el("span", null, `${i + 1}.`), document.createTextNode(x.q));
+      box.append(qt);
+      const ch = el("div", "choices");
+      const why = el("div", "why"); why.hidden = true;
+      const btns = x.choices.map((c, j) => {
+        const b = el("button", "choice"); b.type = "button";
+        b.append(el("span", "l", letters[j]), el("span", null, c));
+        b.onclick = () => { if (t.picks[i] != null) return; t.picks[i] = j; save(); paint(); update(); };
+        ch.append(b); return b;
+      });
+      const paint = () => {
+        const p = t.picks[i];
+        if (p == null) return;
+        btns.forEach((b, j) => {
+          b.disabled = true;
+          if (j === x.answer) b.classList.add("right");
+          else if (j === p) b.classList.add("wrong");
+        });
+        why.hidden = false; why.textContent = "";
+        const ok = p === x.answer;
+        why.append(el("b", ok ? "ok" : "no", ok ? "Correct. " : `Not quite. It's ${letters[x.answer]}. `), document.createTextNode(x.why || ""));
+      };
+      paint();
+      box.append(ch, why);
+      card.append(box);
+    });
+    card.append(scoreBox);
+    update();
+    return card;
+  }
+
+  // ---------- composer ----------
+  function setBusy(b) {
+    busy = b;
+    $("#sendIcon").innerHTML = b ? STOP_SVG : SEND_SVG;
+    $("#send").setAttribute("aria-label", b ? "Stop" : "Send");
+    updateSend();
+    document.querySelectorAll(".ask, .quick .chip").forEach((x) => { x.disabled = b; });
+  }
+  function updateSend() { $("#send").disabled = !busy && !$("#msg").value.trim(); }
+  function autosize() { const m = $("#msg"); m.style.height = "auto"; m.style.height = Math.min(180, m.scrollHeight) + "px"; }
+  function submitComposer() {
+    if (busy) { if (ctl) ctl.abort(); return; }
+    const v = $("#msg").value; if (!v.trim()) return;
+    $("#msg").value = ""; autosize(); updateSend();
+    send(v);
+  }
+
+  function renderAsks() {
+    const asks = $("#asks"), quick = $("#quick");
+    for (const a of ASKS) {
+      const run = () => {
+        if (busy) return;
+        if (a.fill) { const m = $("#msg"); m.value = a.fill; autosize(); updateSend(); m.focus(); m.setSelectionRange(m.value.length, m.value.length); }
+        else send(a.text);
+      };
+      const b = el("button", "ask"); b.type = "button"; b.append(el("b", null, a.label), el("small", null, a.sub)); b.onclick = run;
+      asks.append(b);
+      const c = el("button", "chip", a.label); c.type = "button"; c.onclick = run;
+      quick.append(c);
+    }
+  }
+
+  // ---------- voice ----------
+  let dictBase = "", dictFinal = "", dictState = "idle";
+  function wireDictation() {
+    const mic = $("#mic"), msg = $("#msg");
+    const join = (...parts) => parts.map((p) => p.trim()).filter(Boolean).join(" ");
+    dict.onPartial(({ text }) => { msg.value = join(dictBase, dictFinal, text); autosize(); updateSend(); });
+    dict.onFinal(({ text }) => { dictFinal = join(dictFinal, text); msg.value = join(dictBase, dictFinal); autosize(); updateSend(); });
+    dict.onState(({ state, reason }) => {
+      const was = dictState; dictState = state;
+      const on = state === "listening" || state === "starting" || state === "finishing";
+      mic.classList.toggle("live", on);
+      mic.setAttribute("aria-label", on ? "Stop listening and send" : "Talk to Nawras");
+      $("#hint").textContent = on ? "Listening… say “Hey Nawras, …” then tap the mic to send" : "Enter to send · Shift+Enter for a new line";
+      if (state === "idle" && was !== "idle") {
+        if ((reason === "stopped" || reason === "viewer_stopped") && msg.value.trim() && !busy) submitComposer();
+        if (reason === "unavailable" || reason === "not_granted") { mic.hidden = true; $("#voiceTip").hidden = true; }
+      }
+    });
+    mic.onclick = () => {
+      if (dictState !== "idle") { dict.stop().catch(() => {}); return; }
+      dictBase = msg.value; dictFinal = "";
+      dict.start().catch((e) => {
+        if (e && (e.code === "not_granted" || e.code === "unavailable")) { mic.hidden = true; $("#voiceTip").hidden = true; }
+      });
+    };
+  }
+
+  // ---------- Claude app hand-off ----------
+  function updateClaudeLink() {
+    if (!cur) return;
+    let p = `You're Nawras, my friendly tutor. I'll talk to you like "Hey Nawras, ...". Teach me step by step in plain words, check that I understand with quick questions, and when I ask, make me study guides, quizzes, or a lesson plan so I can teach it to someone else.\n\nI'm learning: ${cur.topic}`;
+    if (cur.docName) p += `\n\nI'm attaching my file "${cur.docName}". Teach from it.`;
+    p += `\n\nHey Nawras, let's start. Give me a quick overview and where we should begin.`;
+    $("#openClaude").href = "https://claude.ai/new?q=" + encodeURIComponent(p.slice(0, 1800));
+    $("#openClaude").title = cur.docName ? `Opens a new Claude chat with Nawras. Attach "${cur.docName}" there.` : "Opens a new Claude chat with Nawras";
+  }
+
+  // ---------- wiring ----------
+  load();
+  renderAsks();
+  $("#topic").addEventListener("input", updateGo);
+  $("#setup").addEventListener("submit", (e) => { e.preventDefault(); startSession(); });
+  $("#topic").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !$("#go").disabled) { e.preventDefault(); startSession(); } });
+  document.querySelectorAll("[data-ex]").forEach((b) => b.addEventListener("click", () => { $("#topic").value = b.dataset.ex; updateGo(); $("#topic").focus(); }));
+  $("#file").addEventListener("change", (e) => { const f = e.target.files && e.target.files[0]; if (f) readFile(f); });
+  const drop = $("#drop");
+  ["dragenter", "dragover"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+  ["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
+  drop.addEventListener("drop", (e) => { const f = e.dataTransfer && e.dataTransfer.files[0]; if (f) readFile(f); });
+  $("#home").addEventListener("click", showStart);
+  $("#newTopic").addEventListener("click", showStart);
+  $("#composer").addEventListener("submit", (e) => { e.preventDefault(); submitComposer(); });
+  $("#msg").addEventListener("input", () => { autosize(); updateSend(); });
+  $("#msg").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); if (!busy) submitComposer(); }
+  });
+
+  const resume = store.currentId && store.sessions.find((s) => s.id === store.currentId);
+  if (resume) showChat(resume); else showStart();
+  boot();
+})();
+</script>
