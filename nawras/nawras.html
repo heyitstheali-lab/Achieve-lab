@@ -102,7 +102,7 @@ button { cursor: pointer; }
 .avatar-host canvas { display: block; width: 100% !important; height: 100% !important; }
 .avatar-flat { position: absolute; inset: 0; display: grid; place-items: center; }
 .avatar-flat .mark { width: 96px; height: 96px; font-size: 3rem; border-radius: 30px 30px 30px 10px; box-shadow: 0 8px 0 var(--edge); }
-.avatar-host.has3d .avatar-flat { display: none; }
+.avatar-host.has3d .avatar-flat, .avatar-host.vacant .avatar-flat { display: none; }
 
 /* ---------- Start screen ---------- */
 #start { overflow-y: auto; min-height: 0; }
@@ -369,13 +369,112 @@ aside.side { border-right: 1px solid var(--line); overflow-y: auto; padding: 8px
 }
 .toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+/* ---------- Made in this topic ---------- */
+.made { display: grid; gap: 6px; }
+.made button {
+  display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 8px; align-items: center; text-align: left;
+  border: 1px solid var(--line); background: var(--paper); border-radius: 10px; padding: 6px 10px; box-shadow: 0 2px 0 var(--line-strong);
+}
+.made button:hover { border-color: var(--accent); background: var(--accent-soft); }
+.made .ic { width: 30px; height: 26px; border-radius: 7px; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); font: 800 .66rem/1 var(--font-body); letter-spacing: .03em; }
+.made .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .9rem; font-weight: 700; }
+.made .st { color: var(--muted); font-size: .78rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.side-link { color: var(--muted); font-size: .88rem; display: inline-flex; gap: 6px; align-items: center; }
+.side-link:hover { color: var(--accent); }
+.side-link svg { width: 14px; height: 14px; flex: none; }
+.msg.flash .body { animation: flash 1.4s ease; border-radius: 12px; }
+@keyframes flash { 0%, 45% { box-shadow: 0 0 0 4px var(--hi); } 100% { box-shadow: 0 0 0 0 transparent; } }
+.menu-btn svg { width: 16px; height: 16px; }
+@media (min-width: 901px) { .menu-btn { display: none; } }
+.scrim { position: fixed; inset: 0; background: rgb(0 0 0 / .38); z-index: 39; }
+
+/* ---------- Talk mode ---------- */
+.convo { position: relative; }
+.talk {
+  position: absolute; inset: 0; z-index: 5; background: var(--paper); overflow-y: auto;
+  display: grid; grid-template-rows: auto auto auto 1fr auto; justify-items: center; gap: 8px; padding-block: 12px 18px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.talk-top { width: 100%; max-width: 760px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+#talkAvatar { width: min(340px, 86vw); height: clamp(170px, 32vh, 290px); }
+.talk-status { font: 800 1.3rem/1.2 var(--font-display); text-align: center; text-wrap: balance; }
+.talk-lines { width: 100%; max-width: 640px; display: grid; gap: 10px; align-content: start; min-height: 0; }
+.talk-you { justify-self: end; background: var(--accent-soft); border-radius: 16px 16px 4px 16px; padding: 8px 14px; max-width: 90%; overflow-wrap: anywhere; }
+.talk-reply { background: var(--surface); border: 1px solid var(--line); border-radius: 16px 16px 16px 4px; padding: 10px 14px; max-height: 34vh; overflow-y: auto; box-shadow: 0 3px 0 var(--line-strong); }
+.talk-you:empty, .talk-reply:empty { display: none; }
+.talk-ctrl { display: grid; justify-items: center; gap: 10px; width: 100%; }
+.talk-btn {
+  position: relative; width: 86px; height: 86px; border-radius: 50%; border: 0; background: var(--accent); color: var(--accent-ink);
+  display: grid; place-items: center; box-shadow: 0 6px 0 var(--edge), 0 20px 30px -14px var(--shadow); transition: transform .08s, box-shadow .08s;
+}
+.talk-btn svg { width: 34px; height: 34px; }
+.talk-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--edge); }
+.talk-btn.listening { background: var(--bad); color: var(--paper); box-shadow: 0 6px 0 color-mix(in srgb, var(--bad) 55%, #000); }
+.talk-btn.listening::after { content: ""; position: absolute; inset: -8px; border-radius: 50%; border: 3px solid var(--bad); animation: ripple 1.5s infinite ease-out; }
+@keyframes ripple { from { transform: scale(.9); opacity: .8; } to { transform: scale(1.3); opacity: 0; } }
+.talk-type { display: flex; gap: 8px; width: 100%; max-width: 520px; }
+.talk-type input { flex: 1; min-width: 0; padding: 11px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.talk-type input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.talk-hint { color: var(--muted); font-size: .86rem; text-align: center; max-width: 48ch; }
+
+/* ---------- Interactive worksheet ---------- */
+.wsheet { position: relative; isolation: isolate; padding-bottom: 8px; }
+.wsheet::before, .wsheet::after {
+  content: ""; position: absolute; inset: 0 0 8px; z-index: -1; background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+  transform: rotate(1deg) translate(5px, 6px);
+}
+.wsheet::after { transform: rotate(-1.2deg) translate(-4px, 9px); opacity: .7; }
+.wpage {
+  background: var(--surface); border: 1px solid var(--line); border-top: 6px solid var(--accent); border-radius: 8px; padding: 24px 26px 20px;
+  display: grid; gap: 20px; box-shadow: 0 26px 50px -30px var(--shadow); min-width: 0;
+}
+.whead { display: grid; gap: 6px; }
+.weyebrow { font: 700 .74rem/1 var(--font-body); letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+.whead h3 { margin: 0; font: 800 1.35rem/1.2 var(--font-display); overflow-wrap: anywhere; text-wrap: balance; }
+.whead p { margin: 0; color: var(--muted); }
+.wmeta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 4px; }
+.pill { padding: 3px 10px; border-radius: 999px; font-weight: 700; font-size: .84rem; background: var(--sunk); font-variant-numeric: tabular-nums; }
+.pill.good { background: var(--good-soft); color: var(--good); }
+.wsec { display: grid; gap: 12px; min-width: 0; }
+.wsec h4 { margin: 0; font: 800 1.05rem/1.2 var(--font-display); justify-self: start; padding-bottom: 4px; border-bottom: 3px solid var(--hi); }
+.witems { display: grid; gap: 18px; }
+.wi { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 10px; }
+.wi .n { font: 800 1rem/1.55 var(--font-display); color: var(--accent); font-variant-numeric: tabular-nums; }
+.wi .b { min-width: 0; display: grid; gap: 8px; }
+.wi .q { font-weight: 700; overflow-wrap: anywhere; }
+.wi textarea, .wi input[type="text"], .wi select { width: 100%; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); min-width: 0; }
+.wi textarea { resize: vertical; min-height: 76px; line-height: 1.5; }
+.wi textarea:focus, .wi input:focus, .wi select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.wi .choice[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.wi .choice[aria-pressed="true"] .l { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.mrow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: 8px; align-items: center; }
+.mrow .lt { font-weight: 700; overflow-wrap: anywhere; }
+@media (max-width: 520px) { .mrow { grid-template-columns: minmax(0, 1fr); gap: 4px; } .wpage { padding: 20px 16px 18px; } }
+.wmark { font-size: .92rem; padding: 8px 12px; border-radius: 10px; display: grid; gap: 2px; overflow-wrap: anywhere; }
+.wmark b { font-weight: 800; }
+.wmark.right { background: var(--good-soft); } .wmark.right b { color: var(--good); }
+.wmark.partly { background: color-mix(in srgb, var(--hi) 28%, var(--surface)); }
+.wmark.wrong { background: var(--bad-soft); } .wmark.wrong b { color: var(--bad); }
+.wmark.blank, .wmark.unchecked { background: var(--sunk); color: var(--muted); }
+.wfoot { display: flex; gap: 8px; flex-wrap: wrap; justify-content: space-between; align-items: center; border-top: 1px dashed var(--line); padding-top: 16px; }
+.wfoot .grp { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn.armed { background: var(--bad); border-color: var(--bad); color: var(--paper); }
+
 @media (max-width: 900px) {
   #chat { grid-template-columns: minmax(0, 1fr); }
-  aside.side { display: none; }
+  aside.side {
+    position: fixed; top: 0; bottom: 0; left: 0; width: min(330px, 86vw); z-index: 40; transform: translateX(-105%); visibility: hidden;
+    transition: transform .25s ease, visibility .25s; box-shadow: 0 0 40px var(--shadow);
+    padding-top: calc(18px + env(safe-area-inset-top, 0px)); padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+  }
+  aside.side.open { transform: none; visibility: visible; }
+  #sideAvatar { display: none; }
   .quick { display: flex; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .thinking i, .icon-btn.live { animation: none; }
+  .thinking i, .icon-btn.live, .talk-btn.listening::after { animation: none; }
+  aside.side { transition: none; }
   .deal.in, .deal.back-in { animation: none; }
   .flip, .paper3d .sheet, .can div { transition: none; }
 }
@@ -386,10 +485,10 @@ aside.side { border-right: 1px solid var(--line); overflow-y: auto; padding: 8px
     <button class="brand" id="home" type="button" aria-label="Nawras home"><span class="avatar-host" id="barAvatar"></span><span class="mark" aria-hidden="true">N</span><span>Nawras</span></button>
     <div class="topic-pill" id="topicPill"></div>
     <div class="actions">
-      <a class="btn" id="openClaude" href="https://claude.ai/new" target="_blank" rel="noopener" hidden>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>
-        <span><span class="long">Continue in </span>Claude</span>
-      </a>
+      <button class="btn menu-btn" id="menuBtn" type="button" hidden aria-label="Open my stuff">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+        <span>My stuff</span>
+      </button>
       <button class="btn" id="newTopic" type="button" hidden>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
         <span><span class="long">New </span>topic</span>
@@ -402,7 +501,7 @@ aside.side { border-right: 1px solid var(--line); overflow-y: auto; padding: 8px
       <div class="hello">
         <div class="hello-text">
           <h1><span class="hey">Hey,</span> I'm Nawras.</h1>
-          <p>Tell me what you're learning or drop in a PDF. I'll teach it to you, make study guides, quizzes and flashcards, turn them into PDFs, and help you teach it to someone else.</p>
+          <p>Tell me what you're learning or drop in your notes or a worksheet. Talk to me out loud or type. I'll teach you, quiz you, and turn worksheets into ones you fill in and get checked right here.</p>
         </div>
         <div class="avatar-host" id="heroAvatar"><div class="avatar-flat"><span class="mark">N</span></div></div>
       </div>
@@ -437,11 +536,11 @@ aside.side { border-right: 1px solid var(--line); overflow-y: auto; padding: 8px
       <div>
         <p class="section-h">Then just ask</p>
         <div class="can">
-          <div><b>Teach me</b><q>Hey Nawras, help me with this</q></div>
-          <div><b>Study guide</b><q>Hey Nawras, make me a study guide about this</q></div>
+          <div><b>Talk out loud</b><q>Tap the mic: Hey Nawras, help me with this</q></div>
+          <div><b>Worksheet</b><q>Hey Nawras, make my worksheet interactive</q></div>
           <div><b>Step by step</b><q>Hey Nawras, how do I add this to this?</q></div>
-          <div><b>Quiz</b><q>Hey Nawras, make me a quiz like that</q></div>
-          <div><b>Flashcards</b><q>Hey Nawras, make me flashcards</q></div>
+          <div><b>Study guide</b><q>Hey Nawras, make me a study guide about this</q></div>
+          <div><b>Quiz &amp; flashcards</b><q>Hey Nawras, make me a quiz like that</q></div>
           <div><b>PDF</b><q>Hey Nawras, turn that into a PDF</q></div>
         </div>
       </div>
@@ -461,11 +560,19 @@ aside.side { border-right: 1px solid var(--line); overflow-y: auto; padding: 8px
         <h2 id="sideTopic"></h2>
         <div class="doc" id="sideDoc"></div>
       </div>
+      <div id="madeWrap" hidden>
+        <p class="section-h">Made in this topic</p>
+        <div class="made" id="made"></div>
+      </div>
       <div>
         <p class="section-h">Ask Nawras to</p>
         <div class="asks" id="asks"></div>
       </div>
-      <div class="tip" id="voiceTip" hidden><b>Talk to Nawras.</b> Tap the mic, say "Hey Nawras, …", then tap it again to send.</div>
+      <div class="tip"><b>Talk to Nawras.</b> Tap the mic and just talk. He answers out loud, then tap again to reply.</div>
+      <a class="side-link" id="openClaude" href="https://claude.ai/new" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>
+        Also open this topic in the Claude app
+      </a>
     </aside>
 
     <div class="convo">
@@ -476,19 +583,41 @@ aside.side { border-right: 1px solid var(--line); overflow-y: auto; padding: 8px
           <div class="quick" id="quick"></div>
           <form class="composer" id="composer">
             <label class="sr" for="msg">Message Nawras</label>
-            <textarea id="msg" rows="1" placeholder="Hey Nawras, make me a study guide PDF…"></textarea>
-            <button class="icon-btn" id="mic" type="button" aria-label="Talk to Nawras" hidden>
+            <textarea id="msg" rows="1" placeholder="Hey Nawras, make me a worksheet…"></textarea>
+            <button class="icon-btn" id="mic" type="button" aria-label="Talk with Nawras out loud">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
             </button>
             <button class="icon-btn send" id="send" type="submit" aria-label="Send" disabled>
               <svg id="sendIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
             </button>
           </form>
-          <div class="hint" id="hint">Enter to send · Shift+Enter for a new line</div>
+          <div class="hint" id="hint">Enter to send · tap the mic to talk out loud</div>
+        </div>
+      </div>
+      <div class="talk" id="talk" hidden>
+        <div class="talk-top">
+          <span class="who">Talking with Nawras</span>
+          <button class="btn" id="talkClose" type="button">Back to chat</button>
+        </div>
+        <div class="avatar-host" id="talkAvatar"><div class="avatar-flat"><span class="mark">N</span></div></div>
+        <div class="talk-status" id="talkStatus" role="status">Tap the mic and talk</div>
+        <div class="talk-lines">
+          <div class="talk-you" id="talkYou"></div>
+          <div class="talk-reply md" id="talkReply"></div>
+        </div>
+        <div class="talk-ctrl">
+          <button class="talk-btn" id="talkBtn" type="button" aria-label="Start talking"></button>
+          <form class="talk-type" id="talkType" hidden autocomplete="off">
+            <label class="sr" for="talkInput">Say something to Nawras</label>
+            <input id="talkInput" type="text" placeholder="Type, or use your keyboard's mic">
+            <button class="btn primary" type="submit">Send</button>
+          </form>
+          <div class="talk-hint" id="talkHint"></div>
         </div>
       </div>
     </div>
   </section>
+  <div class="scrim" id="scrim" hidden></div>
   <div class="toast" id="toast" role="status"></div>
 </div>
 
@@ -515,8 +644,14 @@ aside.side { border-right: 1px solid var(--line); overflow-y: auto; padding: 8px
   // "Hey Nawras" plus the ways speech-to-text tends to hear it.
   const WAKE = /^\s*(?:(?:hey|hi|hello|ok|okay|yo)[\s,]+)?(?:nawras|nauras|nowras|nawrus|narwas|nawress|nauress|narrator|norris|noras|nora's|now ras|naw ras|nau ras)\b[\s,.!:?-]*/i;
 
+  const MIC_BIG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
+  const SEND_BIG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>';
+  const STOP_BIG = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2.5" fill="currentColor"/></svg>';
+
   const ASKS = [
+    { label: "Talk out loud", sub: "Speak and hear Nawras answer", talk: true },
     { label: "Teach me this", sub: "Step by step, from the start", text: "Hey Nawras, teach me this step by step." },
+    { label: "Interactive worksheet", sub: "Fill it in here, get it checked", text: () => (cur && cur.docName ? "Hey Nawras, make my worksheet interactive." : "Hey Nawras, make me an interactive worksheet about this.") },
     { label: "Study guide PDF", sub: "Key ideas, terms, practice", text: "Hey Nawras, make me a study guide PDF about this." },
     { label: "Quiz me", sub: "3D quiz cards that flip", text: "Hey Nawras, make me a quiz about this." },
     { label: "Flashcards", sub: "Flip, sort, and study", text: "Hey Nawras, make me flashcards about this." },
@@ -548,8 +683,10 @@ aside.side { border-right: 1px solid var(--line); overflow-y: auto; padding: 8px
   }
   function save() {
     const attempt = (data) => { localStorage.setItem(STORE_KEY, JSON.stringify(data)); };
-    try { attempt(store); return; } catch (_) {}
-    try { attempt({ ...store, sessions: store.sessions.map((s) => ({ ...s, docText: (s.docText || "").slice(0, 20000) })) }); } catch (_) {}
+    try { attempt(store); } catch (_) {
+      try { attempt({ ...store, sessions: store.sessions.map((s) => ({ ...s, docText: (s.docText || "").slice(0, 20000) })) }); } catch (_) {}
+    }
+    renderMade();
   }
 
   let toastTimer = 0;
@@ -580,7 +717,7 @@ aside.side { border-right: 1px solid var(--line); overflow-y: auto; padding: 8px
     let blinkAt = 2, blinkEnd = 0, clock = 0, last = 0, started = false, initP = null;
     const ptr = { x: 0, y: 0 }, look = { x: 0, y: 0 };
     let ro = null;
-    const FRAME = { hero: { h: 1.95, w: 2.75, cy: 0.18 }, side: { h: 1.6, w: 1.45, cy: 0.2 }, bar: { h: 1.35, w: 1.35, cy: 0.05 } };
+    const FRAME = { hero: { h: 1.95, w: 2.75, cy: 0.18 }, side: { h: 1.6, w: 1.45, cy: 0.2 }, bar: { h: 1.35, w: 1.35, cy: 0.05 }, talk: { h: 1.75, w: 1.6, cy: 0.25 } };
 
     const cssVar = (n, fb) => (getComputedStyle(document.documentElement).getPropertyValue(n).trim() || fb);
     function std(color, rough = 0.5) { return new T.MeshStandardMaterial({ color, roughness: rough, metalness: 0.05 }); }
@@ -670,10 +807,11 @@ aside.side { border-right: 1px solid var(--line); overflow-y: auto; padding: 8px
       const t = clock, still = reduceMotion.matches;
       let tx = ptr.x * 0.45, ty = ptr.y * 0.25;
       if (state === "thinking") { tx = 0.35 + Math.sin(t * 0.9) * 0.08; ty = -0.3; }
+      else if (state === "listening") { tx = Math.sin(t * 0.7) * 0.06; ty = 0.03; }
       const ease = Math.min(1, dt * 4);
       look.x += (tx - look.x) * ease; look.y += (ty - look.y) * ease;
       headGroup.rotation.y = look.x; headGroup.rotation.x = look.y * 0.6;
-      headGroup.rotation.z = state === "thinking" ? Math.sin(t * 1.3) * 0.08 : -look.x * 0.08;
+      headGroup.rotation.z = state === "thinking" ? Math.sin(t * 1.3) * 0.08 : state === "listening" ? 0.13 + Math.sin(t * 2) * 0.03 : -look.x * 0.08;
       if (t > blinkAt) { blinkEnd = t + 0.12; blinkAt = t + 2.5 + Math.random() * 3; }
       const lid = t < blinkEnd ? 0.12 : 1;
       for (const p of pupils) { p.position.x = p.userData.base.x + look.x * 0.05; p.position.y = p.userData.base.y - look.y * 0.05; p.scale.y = lid; }
@@ -733,9 +871,9 @@ aside.side { border-right: 1px solid var(--line); overflow-y: auto; padding: 8px
       await init();
       if (!renderer || !newHost) return;
       if (host === newHost && mode === newMode) return;
-      if (host) { host.classList.remove("has3d"); ro.unobserve(host); }
+      if (host) { host.classList.remove("has3d"); host.classList.add("vacant"); ro.unobserve(host); }
       host = newHost; mode = newMode;
-      host.appendChild(renderer.domElement); host.classList.add("has3d");
+      host.appendChild(renderer.domElement); host.classList.add("has3d"); host.classList.remove("vacant");
       ro.observe(host); resize();
     }
     return {
@@ -747,12 +885,17 @@ aside.side { border-right: 1px solid var(--line); overflow-y: auto; padding: 8px
   })();
 
   function placeAvatar() {
-    if (!$("#start").hidden) Avatar.mount($("#heroAvatar"), "hero");
+    if (Talk.on) Avatar.mount($("#talkAvatar"), "talk");
+    else if (!$("#start").hidden) Avatar.mount($("#heroAvatar"), "hero");
     else if (innerWidth > 900) Avatar.mount($("#sideAvatar"), "side");
     else Avatar.mount($("#barAvatar"), "bar");
   }
   window.addEventListener("resize", () => { clearTimeout(placeAvatar.t); placeAvatar.t = setTimeout(placeAvatar, 150); });
-  function idleAvatar() { Avatar.setState(speaking ? "talking" : "idle"); }
+  function idleAvatar() {
+    if (Talk.on && Talk.phase === "listening") return Avatar.setState("listening");
+    if (Talk.on && Talk.phase === "thinking") return Avatar.setState("thinking");
+    Avatar.setState(speaking ? "talking" : "idle");
+  }
 
   // ---------- capabilities ----------
   async function boot() {
@@ -770,9 +913,8 @@ aside.side { border-right: 1px solid var(--line); overflow-y: auto; padding: 8px
     });
     use("dictation").then((d) => {
       dict = d;
-      if (!d) return;
-      $("#mic").hidden = false; $("#voiceTip").hidden = false;
-      wireDictation();
+      if (d) wireDictation();
+      if (Talk.on) talkUI();
     });
     use("downloads").then((d) => { downloads = d; rerenderLog(); });
   }
@@ -787,16 +929,17 @@ aside.side { border-right: 1px solid var(--line); overflow-y: auto; padding: 8px
     if (busy && ctl) ctl.abort();
     cur = null; store.currentId = null; save();
     $("#start").hidden = false; $("#chat").hidden = true;
-    $("#openClaude").hidden = true; $("#newTopic").hidden = true; $("#topicPill").textContent = "";
+    closeTalk(); closeDrawer();
+    $("#menuBtn").hidden = true; $("#newTopic").hidden = true; $("#topicPill").textContent = "";
     renderRecents(); updateGo(); placeAvatar();
   }
   function showChat(session) {
     cur = session; store.currentId = session.id; save();
     $("#start").hidden = true; $("#chat").hidden = false;
-    $("#openClaude").hidden = false; $("#newTopic").hidden = false;
+    $("#menuBtn").hidden = false; $("#newTopic").hidden = false;
     $("#topicPill").textContent = session.topic;
     $("#sideTopic").textContent = session.topic;
-    renderDocInfo(); updateClaudeLink(); rerenderLog(); updateSend(); placeAvatar();
+    renderDocInfo(); updateClaudeLink(); rerenderLog(); renderMade(); updateSend(); placeAvatar();
     setTimeout(() => $("#msg").focus(), 0);
   }
   function renderDocInfo() {
@@ -942,7 +1085,7 @@ What you do:
 - Study guides: when asked, make a clear guide with these sections: Key ideas, Important terms (term: meaning), How it works or Steps, Common mistakes, and 5 practice questions, with the answers at the very end under "Answers".
 - "How do I ..." questions: give numbered steps, show one fully worked example, then give them a similar one to try.
 - Helping them teach: when the student wants to teach this to someone else (a class, a friend, a younger sibling), give a short lesson plan: the goal, a hook to start, the explanation in 3 simple steps, a quick activity, 3 check questions with answers, and tips for explaining it simply.
-- The app makes interactive quizzes, flashcards and PDFs itself. If the student shares quiz results, go over each question they missed: why the right answer is right and why theirs wasn't.
+- The app makes interactive quizzes, flashcards, fill-in worksheets and PDFs itself, right in this chat. If the student shares quiz results, go over each question they missed: why the right answer is right and why theirs wasn't.
 - If they answer one of your check questions, tell them kindly whether they're right and why.
 
 Style rules:
@@ -973,6 +1116,13 @@ The student is learning: ${s.topic}`;
       });
       return `I made a quiz, "${t.quiz.title}":\n${lines.join("\n")}`;
     }
+    if (t.kind === "worksheet" && t.ws) {
+      const lines = wsItems(t.ws).map((it, i) => {
+        const v = t.answers && t.answers[it.id], m = t.marks && t.marks[it.id];
+        return `${i + 1}. [${it.type}] ${it.q} | expected: ${wsExpected(it)}${wsAnswered(it, v) ? ` | student: ${wsAnswerText(it, v)}` : ""}${m ? ` | marked ${m.score}${m.feedback ? ": " + m.feedback : ""}` : ""}`;
+      });
+      return `I made an interactive worksheet, "${t.ws.title}":\n${lines.join("\n")}`;
+    }
     if (t.kind === "cards" && t.deck) {
       return `I made flashcards, "${t.deck.title}":\n` + t.deck.cards.map((c, i) => `${i + 1}. ${c.front}: ${c.back}`).join("\n");
     }
@@ -1002,6 +1152,8 @@ The student is learning: ${s.topic}`;
   function stripWake(text) { const m = text.match(WAKE); return (m ? text.slice(m[0].length) : text).trim(); }
   const isQuiz = (t) => /\b(quiz me|test me|practice test)\b|\b(make|give|create|write|generate|another|new|harder|easier|do)\b[^.?!]*\bquiz/i.test(t);
   const isCards = (t) => /\bflash ?cards?\b/i.test(t);
+  const isWorksheet = (t) => /\bworksheets?\b|\b(make|turn)\b[^.?!]*\binteractive\b/i.test(t);
+  const LONGFORM = /\b(study guide|lesson plan|notes|outline|summary|summarize|essay)\b/i;
   const wantsPdf = (t) => /\bpdfs?\b/i.test(t);
   const pdfOfLast = (t) =>
     /\b(turn|save|export|convert|put|download|get|send|make)\b[^.?!]*?\b(this|that|it|those|these|them)\b[^.?!]*?\b(into|as|to|in)\s+(a\s+)?pdf\b/i.test(t) ||
@@ -1040,7 +1192,7 @@ The student is learning: ${s.topic}`;
     for (let i = s.turns.length - 2; i >= 0; i--) {
       const t = s.turns[i];
       if (t.role !== "assistant" || t.error) continue;
-      if ((t.kind === "quiz" && t.quiz) || (t.kind === "cards" && t.deck) || (t.content && t.kind !== "pdf")) return t;
+      if ((t.kind === "quiz" && t.quiz) || (t.kind === "cards" && t.deck) || (t.kind === "worksheet" && t.ws) || (t.content && t.kind !== "pdf")) return t;
       if (t.kind === "pdf" && t.source) return t;
     }
     return null;
@@ -1050,26 +1202,28 @@ The student is learning: ${s.topic}`;
     const last = s.turns[s.turns.length - 1];
     const ask = stripWake(last.content) || "Hi!";
     const pdf = wantsPdf(ask);
-    if (pdf && !isQuiz(ask) && !isCards(ask) && pdfOfLast(ask)) {
+    if (pdf && !isQuiz(ask) && !isCards(ask) && !isWorksheet(ask) && pdfOfLast(ask)) {
       const prev = lastContentTurn(s);
       if (prev) return makePdfTurn(s, prev);
     }
     if (!sample) {
       const t = { role: "assistant", content: "", error: samplingDead ? "Open this page on claude.ai to talk to Nawras." : "Still connecting to Claude. Try again in a moment." };
-      s.turns.push(t); save(); appendTurn(t); return;
+      s.turns.push(t); save(); appendTurn(t); talkAfter(t); return;
     }
+    if (isWorksheet(ask)) return runDeck(s, ask, "worksheet", pdf);
     if (isQuiz(ask)) return runDeck(s, ask, "quiz", pdf);
     if (isCards(ask)) return runDeck(s, ask, "cards", pdf);
-    return runChat(s, pdf);
+    return runChat(s, pdf, Talk.on && !LONGFORM.test(ask));
   }
 
   function makePdfTurn(s, prev) {
-    const source = pdfSourceOf(prev);
-    const label = source.type === "quiz" ? "quiz worksheet" : source.type === "cards" ? "flashcard sheet" : "PDF";
+    const source = JSON.parse(JSON.stringify(pdfSourceOf(prev)));
+    const label = source.type === "quiz" ? "quiz worksheet" : source.type === "cards" ? "flashcard sheet" : source.type === "worksheet" ? "worksheet PDF" : "PDF";
     const t = { role: "assistant", kind: "pdf", source, content: `Here's that as a ${label}. Download it below.` };
     s.turns.push(t); s.updatedAt = Date.now(); save();
     appendTurn(t);
     Avatar.react("happy");
+    talkAfter(t);
   }
 
   function imagesFor(s) {
@@ -1078,7 +1232,9 @@ The student is learning: ${s.topic}`;
 
   const PDF_NOTE = "(App note: the student wants this as a downloadable PDF. Write it as a complete, well-organized document that starts with a single '# Title' line. Use headings, lists and tables where they help. Don't mention PDFs, files or downloading in the text; the app adds the download button.)";
 
-  async function runChat(s, pdf) {
+  const VOICE_NOTE = "(App note: the student is talking out loud with you, and your reply will be read aloud. Answer like you're speaking: 2 to 5 short, friendly sentences, with no headings, tables, lists or symbols, and end with a short question or next step.)";
+
+  async function runChat(s, pdf, voice) {
     const t = { role: "assistant", content: "" };
     if (pdf) t.pdf = true;
     s.turns.push(t);
@@ -1091,12 +1247,12 @@ The student is learning: ${s.topic}`;
         cache: false, signal: ctl.signal,
         onText: ({ text }) => {
           latest = text; Avatar.setState("talking");
-          if (!raf) raf = requestAnimationFrame(() => { raf = 0; view.setText(latest); });
+          if (!raf) raf = requestAnimationFrame(() => { raf = 0; view.setText(latest); if (Talk.on) { const r = $("#talkReply"); r.innerHTML = mdToHtml(latest); r.scrollTop = r.scrollHeight; } });
         },
       };
       const imgs = imagesFor(s);
       if (imgs && imgs.length) opts.images = imgs;
-      const res = await sample(buildMessages(s, pdf ? PDF_NOTE : null), opts);
+      const res = await sample(buildMessages(s, pdf ? PDF_NOTE : voice ? VOICE_NOTE : null), opts);
       cancelAnimationFrame(raf); raf = 0;
       t.content = res.text;
       if (res.truncated) t.content += "\n\n*(I ran out of room there. Ask me to keep going.)*";
@@ -1109,8 +1265,26 @@ The student is learning: ${s.topic}`;
     } finally {
       ctl = null; setBusy(false); idleAvatar();
       s.updatedAt = Date.now(); save();
-      if (s.turns.includes(t)) view.finish();
+      if (s.turns.includes(t)) { view.finish(); talkAfter(t); }
     }
+  }
+
+  function worksheetInstruction(ask, s) {
+    return `The student asked: "${ask}"
+
+Make an interactive worksheet they will fill in inside the app${s.docText || s.scanned ? ", based on their material" : ""}. If their material is itself a worksheet, assignment or test, recreate ITS questions faithfully, in the same order and with the same wording where possible, using the closest item types below, and keep its section headings. Otherwise write about 8 to 12 items in 2 or 3 sections that go from easier to harder and mix the item types. If they asked for something specific (a number of questions, a type), do that.
+
+Reply with only JSON in this exact shape, no other text:
+{"title": "worksheet title", "instructions": "one short line for the student", "sections": [{"heading": "Part A: ...", "items": [ ...items ]}]}
+
+Item types:
+{"type": "mc", "q": "question", "choices": ["A", "B", "C", "D"], "answer": 0, "why": "one sentence"}
+{"type": "tf", "q": "a statement", "answer": true, "why": "one sentence"}
+{"type": "fill", "q": "a sentence with ____ for the blank", "answer": "word", "accept": ["other accepted answers"], "why": "one sentence"}
+{"type": "match", "q": "Match each term to its meaning", "pairs": [{"left": "term", "right": "meaning"}]}   (3 to 6 pairs)
+{"type": "short", "q": "an open question to answer in a few sentences", "rubric": "what a complete answer must include"}
+{"type": "work", "q": "a problem to solve, showing the steps", "answer": "the final answer", "rubric": "the key steps"}
+For "mc", "answer" is the 0-based index of the correct choice. Write math in plain text, not LaTeX.`;
   }
 
   function quizInstruction(ask, s, count) {
@@ -1140,19 +1314,21 @@ Write math in plain text, not LaTeX.`;
     const t = { role: "assistant", kind, content: "" };
     if (pdf) t.pdf = true;
     s.turns.push(t);
-    const view = appendTurn(t, true, false, kind === "quiz" ? "Shuffling quiz cards…" : "Making flashcards…");
+    const view = appendTurn(t, true, false, { quiz: "Shuffling quiz cards…", cards: "Making flashcards…", worksheet: "Building your worksheet…" }[kind]);
     setBusy(true); Avatar.setState("thinking");
     ctl = new AbortController();
     const n = (ask.match(/\b(\d{1,2})\b/) || [])[1];
     try {
       let instruction;
       if (kind === "quiz") instruction = quizInstruction(ask, s, Math.max(3, Math.min(15, n ? +n : 5)));
+      else if (kind === "worksheet") instruction = worksheetInstruction(ask, s);
       else instruction = cardsInstruction(ask, s, Math.max(4, Math.min(30, n ? +n : 10)));
       const opts = { cache: false, signal: ctl.signal };
       const imgs = imagesFor(s);
       if (imgs && imgs.length) opts.images = imgs;
       const data = await sample.json(buildMessages(s, instruction), opts);
       if (kind === "quiz") { t.quiz = cleanQuiz(data); if (!t.quiz) throw { code: "invalid_json" }; }
+      else if (kind === "worksheet") { t.ws = cleanWorksheet(data); if (!t.ws) throw { code: "invalid_json" }; t.wsId = Math.random().toString(36).slice(2, 8); t.answers = {}; t.marks = {}; }
       else { t.deck = cleanDeck(data); if (!t.deck) throw { code: "invalid_json" }; }
       Avatar.react("happy");
     } catch (e) {
@@ -1161,13 +1337,42 @@ Write math in plain text, not LaTeX.`;
     } finally {
       ctl = null; setBusy(false); idleAvatar();
       s.updatedAt = Date.now(); save();
-      if (s.turns.includes(t)) view.finish();
+      if (s.turns.includes(t)) { view.finish(); talkAfter(t); }
     }
   }
 
   function cleanQuiz(d) {
     if (!d || !Array.isArray(d.questions)) return null;
-    const qs = d.questions.map((x) => {
+    const qs = d.questions.map(cleanItem).filter(Boolean);
+    if (!qs.length) return null;
+    return { title: typeof d.title === "string" && d.title.trim() ? d.title.trim() : "Quiz", questions: qs };
+  }
+  function cleanWorksheet(d) {
+    if (!d || !Array.isArray(d.sections)) return null;
+    let n = 0;
+    const sections = d.sections.map((sec) => {
+      if (!sec || !Array.isArray(sec.items)) return null;
+      const items = sec.items.map((x) => {
+        if (!x || typeof x.q !== "string" || !x.q.trim() || n >= 30) return null;
+        const why = typeof x.why === "string" ? x.why : "";
+        let it = null;
+        if (x.type === "match" && Array.isArray(x.pairs)) {
+          const pairs = x.pairs.filter((p) => p && typeof p.left === "string" && typeof p.right === "string" && p.left.trim() && p.right.trim()).slice(0, 8).map((p) => ({ left: p.left.trim(), right: p.right.trim() }));
+          if (pairs.length >= 2) it = { type: "match", q: x.q, pairs, why };
+        } else if (x.type === "short") it = { type: "short", q: x.q, rubric: String(x.rubric || ""), why };
+        else if (x.type === "work") it = { type: "work", q: x.q, answer: String(x.answer == null ? "" : x.answer), rubric: String(x.rubric || ""), why };
+        else it = cleanItem(x);
+        if (!it) return null;
+        it.id = "i" + (++n);
+        return it;
+      }).filter(Boolean);
+      return items.length ? { heading: typeof sec.heading === "string" ? sec.heading : "", items } : null;
+    }).filter(Boolean);
+    if (!n) return null;
+    return { title: typeof d.title === "string" && d.title.trim() ? d.title.trim() : "Worksheet", instructions: typeof d.instructions === "string" ? d.instructions : "", sections };
+  }
+  function cleanItem(x) {
+    {
       if (!x || typeof x.q !== "string" || !x.q.trim()) return null;
       const why = typeof x.why === "string" ? x.why : "";
       if (x.type === "tf" || typeof x.answer === "boolean") {
@@ -1184,9 +1389,7 @@ Write math in plain text, not LaTeX.`;
       const answer = Number(x.answer);
       if (choices.length < 2 || !Number.isInteger(answer) || answer < 0 || answer >= choices.length) return null;
       return { type: "mc", q: x.q, choices, answer, why };
-    }).filter(Boolean);
-    if (!qs.length) return null;
-    return { title: typeof d.title === "string" && d.title.trim() ? d.title.trim() : "Quiz", questions: qs };
+    }
   }
   function cleanDeck(d) {
     if (!d || !Array.isArray(d.cards)) return null;
@@ -1229,6 +1432,7 @@ Write math in plain text, not LaTeX.`;
     if (t.kind === "pdf" && t.source) return t.source;
     if (t.kind === "quiz" && t.quiz) return { type: "quiz", quiz: t.quiz };
     if (t.kind === "cards" && t.deck) return { type: "cards", deck: t.deck };
+    if (t.kind === "worksheet" && t.ws) return { type: "worksheet", ws: t.ws, answers: t.answers || {}, marks: t.marks || {} };
     return { type: "md", md: t.content || "" };
   }
   const PDF_MAP = { "→": "->", "←": "<-", "↔": "<->", "⇒": "=>", "≤": "<=", "≥": ">=", "≠": "!=", "≈": "~", "−": "-", "√": "sqrt", "π": "pi", "∞": "infinity", "Δ": "Delta", "θ": "theta", "α": "alpha", "β": "beta", "γ": "gamma", "λ": "lambda", "μ": "mu", "Ω": "Omega", "✓": "v", "✔": "v", "✅": "", "✗": "x", "✘": "x", "❌": "", "⁰": "^0", "⁴": "^4", "⁵": "^5", "⁶": "^6", "⁷": "^7", "⁸": "^8", "⁹": "^9", "ⁿ": "^n", "₀": "0", "₁": "1", "₂": "2", "₃": "3", "₄": "4", "₅": "5", "₆": "6", "₇": "7", "₈": "8", "₉": "9", " ": " ", "​": "", "−": "-", "‑": "-", "‐": "-", "→": "->" };
@@ -1432,6 +1636,49 @@ Write math in plain text, not LaTeX.`;
           const ans = x.type === "mc" ? `${L[x.answer]}. ${x.choices[x.answer]}` : correctText(x);
           w.para([{ text: ans, b: true }, ...(x.why ? [{ text: " — " + x.why }] : [])], { x: w.M + 22, marker: `${i + 1}.`, markerW: 22 }); w.gap(6);
         });
+      } else if (src.type === "worksheet") {
+        const ws = src.ws, A = src.answers || {}, MK = src.marks || {}, { doc, M, W, C } = w;
+        title = ws.title;
+        w.titleBlock(title, `Worksheet · ${topic}`);
+        if (ws.instructions) { w.para([{ text: ws.instructions, i: true }], { col: C.muted }); w.gap(6); }
+        w.para([{ text: "Name: ______________________________      Date: ______________" }], { size: 10.5, col: C.muted }); w.gap(6);
+        const sc = wsScore({ ws, marks: MK });
+        if (sc.n) { w.para([{ text: `Score: ${fmt(sc.got)} / ${sc.n}`, b: true }], { col: C.good }); }
+        w.gap(8);
+        const blankLines = (k, X) => { for (let j = 0; j < k; j++) { w.ensure(22); doc.setDrawColor(...C.line); doc.setLineWidth(0.7); doc.line(X, w.y + 16, W - M, w.y + 16); w.y += 22; } };
+        const LBL = { right: "Right", partly: "Partly right", wrong: "Not quite", blank: "Not answered", unchecked: "Not checked" };
+        let n = 0;
+        for (const sec of ws.sections) {
+          if (sec.heading) { w.gap(6); w.ensure(70); w.para([{ text: sec.heading, b: true }], { size: 13.5, col: C.accent, lh: 1.3 }); w.gap(6); }
+          for (const it of sec.items) {
+            n++; w.ensure(80);
+            const X = M + 22, v = A[it.id], has = wsAnswered(it, v);
+            w.para([{ text: it.q, b: true }], { x: X, marker: `${n}.`, markerW: 22, size: 11.5 }); w.gap(4);
+            if (it.type === "mc" || it.type === "tf") {
+              it.choices.forEach((c, j) => w.para([{ text: c, b: has && v === j, col: has && v === j ? C.accent : null }], { x: X + 34, marker: ((has && v === j) ? "(x) " : "( ) ") + (it.type === "mc" ? LETTERS[j] : ""), markerW: 34 }));
+            } else if (it.type === "fill") {
+              if (has) w.para([{ text: "Answer: " }, { text: String(v), b: true, col: C.accent }], { x: X }); else w.para([{ text: "Answer: ________________________________" }], { x: X, col: C.muted });
+            } else if (it.type === "short") {
+              if (has) w.para([{ text: String(v), col: C.accent }], { x: X }); else blankLines(3, X);
+            } else if (it.type === "work") {
+              if (v && (v.work || "").trim()) w.para([{ text: "Work: ", b: true }, { text: v.work, col: C.accent }], { x: X }); else blankLines(3, X);
+              if (v && (v.final || "").trim()) w.para([{ text: "Final answer: ", b: true }, { text: v.final, col: C.accent }], { x: X }); else w.para([{ text: "Final answer: ____________________" }], { x: X, col: C.muted });
+            } else if (it.type === "match") {
+              const order = it.pairs.map((_, i) => (i + 1) % it.pairs.length);
+              it.pairs.forEach((p, i) => {
+                const pick = v && v[i] != null ? it.pairs[v[i]].right : null;
+                w.para([{ text: p.left + "  ->  ", b: true }, pick ? { text: pick, col: C.accent } : { text: "____" + (has ? "" : "") }], { x: X });
+              });
+              if (!has) { w.gap(2); w.para([{ text: "Choices: " + order.map((k) => it.pairs[k].right).join("  |  "), i: true }], { x: X, col: C.muted, size: 10 }); }
+            }
+            const m = MK[it.id];
+            if (m) { w.gap(2); w.para([{ text: LBL[m.score] || "", b: true }, ...(m.feedback ? [{ text: " — " + m.feedback }] : [])], { x: X, size: 10, col: m.score === "right" ? C.good : m.score === "wrong" ? [178, 58, 58] : C.muted }); }
+            w.gap(12);
+          }
+        }
+        doc.addPage(); w.y = M;
+        w.para([{ text: "Answer key", b: true }], { size: 16, col: C.accent }); w.gap(10);
+        wsItems(ws).forEach((it, i) => { w.para([{ text: wsExpected(it), b: true }, ...(it.why ? [{ text: " — " + it.why }] : [])], { x: M + 22, marker: `${i + 1}.`, markerW: 22 }); w.gap(6); });
       } else if (src.type === "cards") {
         const d = src.deck; title = d.title;
         w.titleBlock(title, `${d.cards.length} flashcards · cut along the outside, fold on the dashed line`);
@@ -1487,6 +1734,7 @@ Write math in plain text, not LaTeX.`;
     const label = btn && btn.querySelector("span");
     const old = label && label.textContent;
     if (label) label.textContent = "Making PDF…";
+    if (t.kind === "worksheet") pdfCache.delete(t); // answers change, so always rebuild
     try { await saveFile(await buildPdf(t)); }
     catch (_) { toast("Couldn't make the PDF. Check your connection and try again."); }
     finally { if (label) label.textContent = old; }
@@ -1562,6 +1810,7 @@ Write math in plain text, not LaTeX.`;
       return null;
     }
     const m = el("div", "msg bot");
+    turnEls.set(t, m);
     const mark = el("span", "mark", "N"); mark.setAttribute("aria-hidden", "true");
     const body = el("div", "body");
     body.append(el("div", "who", "Nawras"));
@@ -1577,8 +1826,9 @@ Write math in plain text, not LaTeX.`;
         body.querySelectorAll(".tools, .errnote, .pdfcard").forEach((n) => n.remove());
         if (t.kind === "quiz" && t.quiz) { content.className = ""; content.append(renderQuiz(t)); }
         else if (t.kind === "cards" && t.deck) { content.className = ""; content.append(renderCards(t)); }
+        else if (t.kind === "worksheet" && t.ws) { content.className = ""; content.append(renderWorksheet(t)); }
         else if (t.content) { content.className = "md"; content.innerHTML = mdToHtml(t.content); }
-        if ((t.pdf || t.kind === "pdf") && !t.error && (t.kind !== "quiz" || t.quiz) && (t.kind !== "cards" || t.deck)) body.append(pdfCard(t));
+        if ((t.pdf || t.kind === "pdf") && !t.error && (t.kind !== "quiz" || t.quiz) && (t.kind !== "cards" || t.deck) && (t.kind !== "worksheet" || t.ws)) body.append(pdfCard(t));
         if (t.content && !t.error && t.kind !== "pdf") body.append(toolsFor(t, content));
         if (t.error) {
           const er = el("div", "errnote"); er.append(el("span", null, t.error));
@@ -1606,7 +1856,7 @@ Write math in plain text, not LaTeX.`;
     };
     row.append(copy);
     if (!t.pdf) { const pb = button("tool"); pb.innerHTML = PDF_SVG + "<span>Save as PDF</span>"; pb.onclick = () => savePdfFor(t, pb); row.append(pb); }
-    if (tts) {
+    if (Voice.available()) {
       const sp = button("tool speak"); sp._turn = t; sp.innerHTML = SPEAK_SVG + "<span>Listen</span>";
       sp.onclick = () => speak(t, content); row.append(sp);
     }
@@ -1616,19 +1866,49 @@ Write math in plain text, not LaTeX.`;
     document.querySelectorAll(".tool.speak").forEach((b) => { b.lastChild.textContent = speaking && speakingTurn === b._turn ? "Stop" : "Listen"; });
   }
   function speak(t, content) {
-    if (!tts) return;
-    if (speaking && speakingTurn === t) { tts.stop().catch(() => {}); return; }
-    const lines = [];
-    for (const p of content.innerText.split(/\n{2,}/).map((p) => p.replace(/\s+/g, " ").trim()).filter(Boolean)) {
-      for (let i = 0; i < p.length; i += 1800) lines.push({ text: p.slice(i, i + 1800) });
-      if (lines.length >= 100) break;
-    }
-    if (!lines.length) return;
+    if (!Voice.available()) return;
+    if (speaking && speakingTurn === t) { Voice.stop(); return; }
     speakingTurn = t; speaking = true; refreshSpeakButtons(); Avatar.setState("talking");
-    tts.speak(lines.slice(0, 100), { voice: "rounded" }).catch((e) => {
-      if (e && e.code === "not_granted") { tts = null; document.querySelectorAll(".tool.speak").forEach((b) => b.remove()); }
+    Voice.say(content.innerText).catch(() => {
+      if (!Voice.available()) document.querySelectorAll(".tool.speak").forEach((b) => b.remove());
     }).finally(() => { if (!busy) idleAvatar(); });
   }
+
+  // Speech out: Claude's voice where offered, else the browser's own voice (phones, Safari).
+  let ttsDenied = false, browserSpeaking = false;
+  const Voice = {
+    available() { return !!tts || (!ttsDenied && "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined"); },
+    lines(text) {
+      const out = [];
+      for (const p of String(text).split(/\n{2,}/).map((x) => x.replace(/\s+/g, " ").trim()).filter(Boolean)) {
+        for (let i = 0; i < p.length; i += 1800) out.push(p.slice(i, i + 1800));
+        if (out.length >= 100) break;
+      }
+      return out.slice(0, 100);
+    },
+    say(text) {
+      const lines = Voice.lines(text);
+      if (!lines.length) return Promise.resolve();
+      if (tts) {
+        return tts.speak(lines.map((x) => ({ text: x })), { voice: "rounded" }).catch((e) => {
+          if (e && e.code === "not_granted") { tts = null; ttsDenied = true; }
+          throw e;
+        });
+      }
+      if (!Voice.available()) return Promise.reject({ code: "unavailable" });
+      return new Promise((res) => {
+        const ss = window.speechSynthesis; ss.cancel();
+        let ended = false;
+        const done = () => { if (ended) return; ended = true; browserSpeaking = false; speaking = false; refreshSpeakButtons(); if (!busy) idleAvatar(); res(); };
+        browserSpeaking = true; speaking = true; refreshSpeakButtons();
+        lines.forEach((l, i) => { const u = new SpeechSynthesisUtterance(l); u.onerror = done; if (i === lines.length - 1) u.onend = done; ss.speak(u); });
+      });
+    },
+    stop() {
+      if (tts) tts.stop().catch(() => {});
+      if (browserSpeaking && window.speechSynthesis) window.speechSynthesis.cancel();
+    },
+  };
 
   // ---------- 3D quiz deck ----------
   const LETTERS = "ABCDEF";
@@ -1828,6 +2108,246 @@ Write math in plain text, not LaTeX.`;
     return deck;
   }
 
+  // ---------- interactive worksheet ----------
+  const fmt = (n) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
+  const wsItems = (ws) => ws.sections.flatMap((s) => s.items);
+  function wsAnswered(it, v) {
+    if (v == null) return false;
+    switch (it.type) {
+      case "mc": case "tf": return typeof v === "number";
+      case "fill": case "short": return String(v).trim() !== "";
+      case "match": return Object.values(v || {}).some((x) => x != null);
+      case "work": return !!(String(v.final || "").trim() || String(v.work || "").trim());
+    }
+    return false;
+  }
+  function wsExpected(it) {
+    switch (it.type) {
+      case "mc": return `${LETTERS[it.answer]}. ${it.choices[it.answer]}`;
+      case "tf": return it.choices[it.answer];
+      case "fill": return it.answers[0];
+      case "match": return it.pairs.map((p) => `${p.left} = ${p.right}`).join("; ");
+      case "work": return it.answer || it.rubric || "See the steps";
+      default: return it.rubric || "Open answer";
+    }
+  }
+  function wsAnswerText(it, v) {
+    switch (it.type) {
+      case "mc": case "tf": return it.choices[v];
+      case "match": return it.pairs.map((p, i) => `${p.left} -> ${v[i] != null ? it.pairs[v[i]].right : "?"}`).join("; ");
+      case "work": return `${v.final || "(no final answer)"}${v.work ? ` (work: ${v.work})` : ""}`;
+      default: return String(v);
+    }
+  }
+  function wsScore(t) {
+    const items = wsItems(t.ws); let got = 0, n = 0;
+    for (const it of items) {
+      const m = t.marks && t.marks[it.id];
+      if (!m || m.score === "unchecked") continue;
+      n++; got += m.score === "right" ? 1 : m.score === "partly" ? 0.5 : 0;
+    }
+    return { got, n, total: items.length };
+  }
+
+  function wsInput(t, it, onChange) {
+    const v = t.answers[it.id], key = `ws-${t.wsId || "w"}-${it.id}`;
+    if (it.type === "mc" || it.type === "tf") {
+      const ch = el("div", "choices" + (it.type === "tf" ? " tf" : ""));
+      const btns = it.choices.map((c, j) => {
+        const b = button("choice", null, () => { t.answers[it.id] = j; btns.forEach((x, k) => x.setAttribute("aria-pressed", String(k === j))); onChange(); });
+        b.setAttribute("aria-pressed", String(v === j));
+        b.append(el("span", "l", it.type === "tf" ? (j === 0 ? "T" : "F") : LETTERS[j]), el("span", null, c));
+        ch.append(b); return b;
+      });
+      return ch;
+    }
+    const text = (tag, ph, val, set, label) => {
+      const x = el(tag); x.id = key + "-" + label.replace(/\W+/g, "").toLowerCase(); if (tag === "input") x.type = "text"; else x.rows = 3;
+      x.placeholder = ph; x.value = val || ""; x.setAttribute("aria-label", label); x.autocomplete = "off";
+      x.oninput = () => { set(x.value); onChange(); };
+      return x;
+    };
+    if (it.type === "fill") return text("input", "Your answer", v, (x) => { t.answers[it.id] = x; }, "Answer");
+    if (it.type === "short") return text("textarea", "Write your answer", v, (x) => { t.answers[it.id] = x; }, "Your answer");
+    if (it.type === "work") {
+      const box = el("div", "b"), cur0 = v || {};
+      const upd = (k) => (x) => { t.answers[it.id] = { ...(t.answers[it.id] || {}), [k]: x }; };
+      box.append(text("textarea", "Show your work, step by step", cur0.work, upd("work"), "Your work"), text("input", "Final answer", cur0.final, upd("final"), "Final answer"));
+      return box;
+    }
+    // match: one dropdown per term, options in a stable shuffled order
+    t.mOrder = t.mOrder || {};
+    if (!Array.isArray(t.mOrder[it.id]) || t.mOrder[it.id].length !== it.pairs.length) {
+      const o = it.pairs.map((_, i) => i);
+      for (let i = o.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [o[i], o[j]] = [o[j], o[i]]; }
+      t.mOrder[it.id] = o;
+    }
+    const box = el("div", "b"), curv = v || {};
+    it.pairs.forEach((p, i) => {
+      const r = el("div", "mrow"); r.append(el("span", "lt", p.left));
+      const sel = el("select"); sel.id = `${key}-m${i}`; sel.setAttribute("aria-label", "Match for " + p.left);
+      const o0 = el("option", null, "Choose…"); o0.value = ""; sel.append(o0);
+      t.mOrder[it.id].forEach((k) => { const o = el("option", null, it.pairs[k].right); o.value = String(k); sel.append(o); });
+      sel.value = curv[i] != null ? String(curv[i]) : "";
+      sel.onchange = () => { const a = { ...(t.answers[it.id] || {}) }; a[i] = sel.value === "" ? null : +sel.value; t.answers[it.id] = a; onChange(); };
+      r.append(sel); box.append(r);
+    });
+    return box;
+  }
+
+  function renderWorksheet(t) {
+    const ws = t.ws; t.answers = t.answers || {}; t.marks = t.marks || {};
+    const items = wsItems(ws);
+    const wrap = el("div", "wsheet"), page = el("div", "wpage"); wrap.append(page);
+    const head = el("div", "whead");
+    head.append(el("span", "weyebrow", "Interactive worksheet"), el("h3", null, ws.title));
+    if (ws.instructions) head.append(el("p", null, ws.instructions));
+    const meta = el("div", "wmeta"); head.append(meta); page.append(head);
+    const markEls = {};
+    const LBL = { right: "Right", partly: "Partly right", wrong: "Not quite", blank: "Not answered", unchecked: "Not checked yet" };
+    const updateMeta = () => {
+      meta.textContent = "";
+      const done = items.filter((it) => wsAnswered(it, t.answers[it.id])).length;
+      meta.append(el("span", "pill", `${done} of ${items.length} answered`));
+      const sc = wsScore(t);
+      if (sc.n) meta.append(el("span", "pill good", `Score ${fmt(sc.got)} / ${sc.n}`));
+    };
+    const setMark = (it) => {
+      const box = markEls[it.id], m = t.marks[it.id];
+      box.textContent = ""; box.hidden = !m; if (!m) return;
+      box.className = "wmark " + m.score;
+      box.append(el("b", null, LBL[m.score] || ""));
+      if (m.feedback) box.append(el("span", null, m.feedback));
+    };
+    let saveT = 0;
+    const changed = (it) => {
+      if (t.marks[it.id]) { delete t.marks[it.id]; setMark(it); }
+      updateMeta(); clearTimeout(saveT); saveT = setTimeout(save, 400);
+    };
+    let num = 0;
+    for (const sec of ws.sections) {
+      const s = el("div", "wsec");
+      if (sec.heading) s.append(el("h4", null, sec.heading));
+      const list = el("div", "witems");
+      for (const it of sec.items) {
+        num++;
+        const row = el("div", "wi"); row.append(el("span", "n", num + "."));
+        const b = el("div", "b"); b.append(el("div", "q", it.q), wsInput(t, it, () => changed(it)));
+        const mk = el("div", "wmark"); mk.hidden = true; markEls[it.id] = mk; b.append(mk);
+        row.append(b); list.append(row); setMark(it);
+      }
+      s.append(list); page.append(s);
+    }
+    const foot = el("div", "wfoot");
+    const check = button("btn primary", "Check my worksheet");
+    check.onclick = async () => {
+      check.disabled = true; check.textContent = "Nawras is checking…"; Avatar.setState("thinking");
+      try { await checkWorksheet(t); } finally { idleAvatar(); const nw = renderWorksheet(t); wrap.replaceWith(nw); }
+    };
+    const sc = wsScore(t);
+    const help = button("btn", "Go over it with Nawras", () => {
+      const missed = items.map((it, i) => { const m = t.marks[it.id]; return m && m.score !== "right" && m.score !== "unchecked" ? `#${i + 1}` : null; }).filter(Boolean);
+      const s2 = wsScore(t);
+      send(`Hey Nawras, I checked my worksheet and got ${fmt(s2.got)}/${s2.n}. ${missed.length ? `Help me with the ones I missed (${missed.join(", ")}).` : "What should I practice next?"}`);
+    });
+    help.hidden = !sc.n;
+    const pdfB = button("btn"); pdfB.innerHTML = PDF_SVG + "<span>Save as PDF</span>"; pdfB.onclick = () => savePdfFor(t, pdfB);
+    const reset = button("btn", "Start over", () => {
+      if (!reset.classList.contains("armed")) { reset.classList.add("armed"); reset.textContent = "Clear all answers?"; return; }
+      t.answers = {}; t.marks = {}; save(); wrap.replaceWith(renderWorksheet(t));
+    });
+    reset.onblur = () => { reset.classList.remove("armed"); reset.textContent = "Start over"; };
+    const g1 = el("div", "grp"), g2 = el("div", "grp");
+    g1.append(check, help); g2.append(pdfB, reset);
+    foot.append(g1, g2); page.append(foot);
+    updateMeta();
+    return wrap;
+  }
+
+  async function checkWorksheet(t) {
+    const items = wsItems(t.ws), marks = {}, open = [];
+    items.forEach((it, idx) => {
+      const v = t.answers[it.id];
+      if (!wsAnswered(it, v)) { marks[it.id] = { score: "blank" }; return; }
+      if (it.type === "mc" || it.type === "tf") {
+        const ok = v === it.answer;
+        marks[it.id] = { score: ok ? "right" : "wrong", feedback: ok ? it.why : `The answer is ${wsExpected(it)}. ${it.why}`.trim() };
+      } else if (it.type === "fill") {
+        const ok = fillOk(it, v);
+        marks[it.id] = { score: ok ? "right" : "wrong", feedback: ok ? it.why : `The answer is "${it.answers[0]}". ${it.why}`.trim() };
+      } else if (it.type === "match") {
+        const right = it.pairs.filter((_, i) => v[i] === i).length, all = it.pairs.length;
+        marks[it.id] = { score: right === all ? "right" : right >= all / 2 ? "partly" : "wrong", feedback: `${right} of ${all} matched.` + (right < all ? " Correct pairs: " + wsExpected(it) + "." : "") };
+      } else {
+        open.push({ id: it.id, number: idx + 1, type: it.type, question: it.q, a_complete_answer_includes: it.rubric || undefined, correct_final_answer: it.type === "work" ? it.answer : undefined, student_answer: it.type === "work" ? (v.final || "") : v, student_work: it.type === "work" ? (v.work || "") : undefined });
+      }
+    });
+    if (open.length) {
+      if (!sample) open.forEach((o) => { marks[o.id] = { score: "unchecked", feedback: "Open this page on claude.ai so Nawras can check written answers." }; });
+      else {
+        try {
+          const prompt = rules(cur) + `\n\nGrade the student's written answers on their worksheet "${t.ws.title}". Be fair and encouraging. Accept answers that show the right idea even if worded differently or misspelled. For "work" problems, check the final answer and whether the steps make sense. Write feedback to the student in 1 to 2 short sentences; if it isn't fully right, say what's missing or wrong.\n\nAnswers:\n${JSON.stringify(open, null, 1)}\n\nReply with only JSON: {"marks": [{"id": "i3", "score": "right" | "partly" | "wrong", "feedback": "..."}]}`;
+          const res = await sample.json(prompt, { cache: false });
+          const list = res && Array.isArray(res.marks) ? res.marks : [];
+          for (const o of open) {
+            const m = list.find((x) => x && x.id === o.id);
+            marks[o.id] = m && ["right", "partly", "wrong"].includes(m.score) ? { score: m.score, feedback: String(m.feedback || "") } : { score: "unchecked", feedback: "Nawras couldn't check this one. Tap Check again." };
+          }
+        } catch (e) {
+          const msg = errorCopy(e);
+          open.forEach((o) => { marks[o.id] = { score: "unchecked", feedback: msg }; });
+        }
+      }
+    }
+    t.marks = marks; save();
+    const sc = wsScore(t);
+    if (sc.n) Avatar.react(sc.got / sc.n >= 0.7 ? "happy" : "oops");
+  }
+
+  // ---------- made in this topic ----------
+  const turnEls = new WeakMap();
+  function pdfTitleGuess(t) {
+    const src = pdfSourceOf(t);
+    if (src.type === "quiz") return src.quiz.title + " (PDF)";
+    if (src.type === "cards") return src.deck.title + " (PDF)";
+    if (src.type === "worksheet") return src.ws.title + " (PDF)";
+    const m = /^#\s+(.+)$/m.exec(src.md || "");
+    return m ? m[1].replace(/[*_`]/g, "") : "Study PDF";
+  }
+  function renderMade() {
+    const box = $("#made"); if (!box) return;
+    box.textContent = "";
+    const out = [];
+    for (const t of cur ? cur.turns : []) {
+      if (t.role !== "assistant" || t.error) continue;
+      if (t.kind === "quiz" && t.quiz) {
+        const p = normPicks(t), a = p.filter(Boolean).length, r = p.filter((x) => x && x.ok).length;
+        out.push({ t, ic: "QUIZ", name: t.quiz.title, st: a ? `${r}/${t.quiz.questions.length}` : `${t.quiz.questions.length} Qs` });
+      } else if (t.kind === "cards" && t.deck) {
+        const k = t.deck.cards.filter((_, i) => t.known && t.known[i] === true).length;
+        out.push({ t, ic: "CARD", name: t.deck.title, st: `${k}/${t.deck.cards.length}` });
+      } else if (t.kind === "worksheet" && t.ws) {
+        const items = wsItems(t.ws), sc = wsScore(t), d = items.filter((it) => wsAnswered(it, t.answers && t.answers[it.id])).length;
+        out.push({ t, ic: "WS", name: t.ws.title, st: sc.n ? `${fmt(sc.got)}/${sc.n}` : `${d}/${items.length}` });
+      }
+      if (t.kind === "pdf" || (t.pdf && !t.error)) out.push({ t, ic: "PDF", name: pdfTitleGuess(t), st: "" });
+    }
+    $("#madeWrap").hidden = !out.length;
+    for (const m of out) {
+      const b = button(null, null, () => jumpTo(m.t));
+      b.append(el("span", "ic", m.ic), el("span", "nm", m.name), el("span", "st", m.st));
+      box.append(b);
+    }
+  }
+  function jumpTo(t) {
+    const e = turnEls.get(t); if (!e || !e.isConnected) return;
+    closeDrawer(); closeTalk();
+    e.scrollIntoView({ behavior: reduceMotion.matches ? "auto" : "smooth", block: "start" });
+    e.classList.remove("flash"); void e.offsetWidth; e.classList.add("flash");
+  }
+  function openDrawer() { $("aside.side").classList.add("open"); $("#scrim").hidden = false; }
+  function closeDrawer() { $("aside.side").classList.remove("open"); $("#scrim").hidden = true; }
+
   // ---------- composer ----------
   function setBusy(b) {
     busy = b;
@@ -1848,38 +2368,113 @@ Write math in plain text, not LaTeX.`;
     const asks = $("#asks"), quick = $("#quick");
     for (const a of ASKS) {
       const run = () => {
+        if (a.talk) { openTalk(true); return; }
         if (busy) return;
+        closeDrawer();
         if (a.fill) { const m = $("#msg"); m.value = a.fill; autosize(); updateSend(); m.focus(); m.setSelectionRange(m.value.length, m.value.length); }
-        else send(a.text);
+        else send(typeof a.text === "function" ? a.text() : a.text);
       };
       const b = button("ask", null, run); b.append(el("b", null, a.label), el("small", null, a.sub)); asks.append(b);
       quick.append(button("chip", a.label, run));
     }
   }
 
-  // ---------- voice ----------
-  let dictBase = "", dictFinal = "", dictState = "idle";
-  function wireDictation() {
-    const mic = $("#mic"), msg = $("#msg");
-    const join = (...parts) => parts.map((p) => p.trim()).filter(Boolean).join(" ");
-    dict.onPartial(({ text }) => { msg.value = join(dictBase, dictFinal, text); autosize(); updateSend(); });
-    dict.onFinal(({ text }) => { dictFinal = join(dictFinal, text); msg.value = join(dictBase, dictFinal); autosize(); updateSend(); });
-    dict.onState(({ state, reason }) => {
-      const was = dictState; dictState = state;
-      const on = state !== "idle";
-      mic.classList.toggle("live", on);
-      mic.setAttribute("aria-label", on ? "Stop listening and send" : "Talk to Nawras");
-      $("#hint").textContent = on ? "Listening… say “Hey Nawras, …” then tap the mic to send" : "Enter to send · Shift+Enter for a new line";
-      if (state === "idle" && was !== "idle") {
-        if ((reason === "stopped" || reason === "viewer_stopped") && msg.value.trim() && !busy) submitComposer();
-        if (reason === "unavailable" || reason === "not_granted") { mic.hidden = true; $("#voiceTip").hidden = true; }
-      }
+  // ---------- talk mode (voice conversation) ----------
+  const Talk = { on: false, phase: "idle", buf: "", partial: "", timer: 0, dstate: "idle" };
+  function talkUI() {
+    const btn = $("#talkBtn"), p = Talk.phase;
+    btn.classList.toggle("listening", p === "listening");
+    btn.innerHTML = p === "listening" ? SEND_BIG : (p === "thinking" || p === "speaking") ? STOP_BIG : MIC_BIG;
+    btn.setAttribute("aria-label", p === "listening" ? "Done talking, send it" : p === "thinking" ? "Stop" : p === "speaking" ? "Stop and talk" : "Start talking");
+    btn.hidden = !dict && (p === "idle" || p === "listening");
+    $("#talkType").hidden = !!dict || p === "thinking" || p === "speaking";
+    $("#talkStatus").textContent = { idle: dict ? "Tap the mic and talk" : "Talk with your keyboard's mic", listening: "Listening…", thinking: "Thinking…", speaking: Voice.available() ? "Nawras is talking" : "Here's what Nawras said" }[p];
+    $("#talkHint").textContent = p === "listening" ? "Stop talking and Nawras will answer, or tap the check to send now."
+      : p === "speaking" ? "Tap the button to cut in and talk."
+      : dict ? "Try “Hey Nawras, quiz me on this.” Space also starts talking."
+      : "Voice typing isn't offered here, so tap your keyboard's mic, say it, then Send.";
+    idleAvatar();
+    if (p === "listening") Avatar.setState("listening");
+    else if (p === "speaking") Avatar.setState("talking");
+  }
+  function setTalk(p) { Talk.phase = p; talkUI(); }
+  function openTalk(listen) {
+    Talk.on = true; closeDrawer();
+    $("#talk").hidden = false; $("#talkYou").textContent = ""; $("#talkReply").textContent = "";
+    placeAvatar(); setTalk("idle");
+    if (listen) talkListen();
+  }
+  function closeTalk() {
+    if (!Talk.on) return;
+    Talk.on = false; clearTimeout(Talk.timer);
+    if (dict && Talk.dstate !== "idle") dict.stop().catch(() => {});
+    if (Talk.phase === "speaking") Voice.stop();
+    Talk.phase = "idle";
+    $("#talk").hidden = true; placeAvatar(); idleAvatar();
+  }
+  // Starts listening. Must run straight from a click or key press.
+  function talkListen() {
+    if (!dict) { setTimeout(() => $("#talkInput").focus(), 30); return; }
+    if (busy) return;
+    if (speaking) Voice.stop();
+    Talk.buf = ""; Talk.partial = ""; $("#talkYou").textContent = "";
+    setTalk("listening");
+    dict.start().catch((e) => {
+      const c = e && e.code;
+      if (c === "not_granted" || c === "unavailable") dict = null;
+      if (Talk.phase === "listening") setTalk("idle");
+      if (c === "not_granted") $("#talkStatus").textContent = "The microphone is off for this page";
     });
-    mic.onclick = () => {
-      if (dictState !== "idle") { dict.stop().catch(() => {}); return; }
-      dictBase = msg.value; dictFinal = "";
-      dict.start().catch((e) => { if (e && (e.code === "not_granted" || e.code === "unavailable")) { mic.hidden = true; $("#voiceTip").hidden = true; } });
-    };
+  }
+  const talkText = () => [Talk.buf, Talk.partial].map((x) => x.trim()).filter(Boolean).join(" ");
+  function talkDone() { clearTimeout(Talk.timer); if (dict) dict.stop().catch(() => {}); else if (Talk.phase === "listening") setTalk("idle"); }
+  function armSilence() { clearTimeout(Talk.timer); if (talkText()) Talk.timer = setTimeout(talkDone, 1700); }
+  function talkSubmit(text) {
+    if (busy || !text.trim()) return;
+    $("#talkYou").textContent = text; $("#talkReply").textContent = "";
+    setTalk("thinking");
+    send(text);
+  }
+  function talkButton() {
+    const p = Talk.phase;
+    if (p === "listening") talkDone();
+    else if (p === "thinking") { if (ctl) ctl.abort(); setTalk("idle"); }
+    else if (p === "speaking") { Voice.stop(); setTalk("idle"); talkListen(); }
+    else talkListen();
+  }
+  // After Nawras answers in talk mode: read it aloud, or hand over to the screen for things you do there.
+  function talkAfter(t) {
+    if (!Talk.on || Talk.phase !== "thinking") return;
+    if (t.error) { $("#talkReply").textContent = t.error; setTalk("idle"); return; }
+    let line = null;
+    if (t.kind === "quiz") line = "Here's your quiz. It's on the screen, so tap an answer to start.";
+    else if (t.kind === "cards") line = "Your flashcards are ready on the screen.";
+    else if (t.kind === "worksheet") line = "Your worksheet is ready. Fill it in right on the screen, then tap Check my worksheet.";
+    else if (t.kind === "pdf" || t.pdf) line = "Your PDF is ready. Tap Download PDF to save it.";
+    else if ((t.content || "").length > 1400) line = "I wrote that out for you. It's on the screen.";
+    if (line) {
+      closeTalk(); jumpTo(t);
+      if (Voice.available()) { Voice.say(line).catch(() => {}); }
+      return;
+    }
+    const r = $("#talkReply"); r.innerHTML = mdToHtml(t.content || "");
+    if (!Voice.available()) { setTalk("idle"); return; }
+    setTalk("speaking");
+    Voice.say(r.innerText || t.content).catch(() => {}).finally(() => { if (Talk.on && Talk.phase === "speaking") setTalk("idle"); });
+  }
+  function wireDictation() {
+    dict.onPartial(({ text }) => { if (!Talk.on || Talk.phase !== "listening") return; Talk.partial = text; $("#talkYou").textContent = talkText(); armSilence(); });
+    dict.onFinal(({ text }) => { if (!Talk.on || Talk.phase !== "listening") return; Talk.buf = [Talk.buf, text].filter(Boolean).join(" "); Talk.partial = ""; $("#talkYou").textContent = talkText(); armSilence(); });
+    dict.onState(({ state, reason }) => {
+      const was = Talk.dstate; Talk.dstate = state;
+      if (state !== "idle" || was === "idle" || !Talk.on) return;
+      clearTimeout(Talk.timer);
+      if (reason === "unavailable" || reason === "not_granted") { dict = null; talkUI(); return; }
+      if (Talk.phase !== "listening") return;
+      const text = talkText();
+      if (text && (reason === "stopped" || reason === "viewer_stopped")) talkSubmit(text);
+      else setTalk("idle");
+    });
   }
 
   // ---------- Claude app hand-off ----------
@@ -1905,6 +2500,19 @@ Write math in plain text, not LaTeX.`;
   ["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
   drop.addEventListener("drop", (e) => { const f = e.dataTransfer && e.dataTransfer.files[0]; if (f) readFile(f); });
   $("#home").addEventListener("click", showStart);
+  $("#mic").addEventListener("click", () => openTalk(true));
+  $("#talkBtn").addEventListener("click", talkButton);
+  $("#talkClose").addEventListener("click", closeTalk);
+  $("#talkType").addEventListener("submit", (e) => { e.preventDefault(); const i = $("#talkInput"); const v = i.value.trim(); if (!v || busy) return; i.value = ""; talkSubmit(v); });
+  $("#menuBtn").addEventListener("click", openDrawer);
+  $("#scrim").addEventListener("click", closeDrawer);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && $("aside.side").classList.contains("open")) { e.preventDefault(); closeDrawer(); return; }
+    if (!Talk.on || e.code !== "Space" || e.repeat) return;
+    const tg = e.target, tag = tg && tg.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || tag === "BUTTON" || (tg && tg.isContentEditable)) return;
+    e.preventDefault(); talkButton();
+  });
   $("#newTopic").addEventListener("click", showStart);
   $("#composer").addEventListener("submit", (e) => { e.preventDefault(); submitComposer(); });
   $("#msg").addEventListener("input", () => { autosize(); updateSend(); });

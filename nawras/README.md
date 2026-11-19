@@ -11,6 +11,10 @@ ask things like:
 - "Hey Nawras, make me a quiz like that" (a 3D card deck: multiple choice,
   true/false and type-the-answer questions that flip to show if you were right)
 - "Hey Nawras, make me flashcards" (flip cards you sort into "Got it" and "Still learning")
+- "Hey Nawras, make my worksheet interactive" (after adding a worksheet PDF) or "make me an
+  interactive worksheet": you fill it in right in the chat (multiple choice, true/false,
+  fill-in, matching, short answer, show-your-work), tap **Check my worksheet**, and Nawras
+  marks each answer with feedback. You can save the finished worksheet as a PDF.
 - "Hey Nawras, make me a study guide PDF" or "turn that into a PDF"
 - "Hey Nawras, help me teach this to someone else" (gives you a mini lesson plan)
 
@@ -25,9 +29,12 @@ How it works:
 
 - It uses your own Claude account through the page, so you don't need an API key.
   The first time you ask something, Claude asks you to allow it.
-- **Voice:** tap the mic, say "Hey Nawras, …", then tap the mic again to send.
-  This works in Chrome-based browsers and the Claude desktop app. **Listen** on a
-  reply reads it out loud.
+- **Talk mode:** tap the mic to talk with Nawras out loud. He hears when you stop
+  talking, answers out loud, and you tap again to reply (or press Space). Voice typing
+  works in Chrome-based browsers and the Claude desktop app; elsewhere (phones,
+  Safari) use your keyboard's mic, and replies are read in the browser's voice.
+- **My stuff:** every quiz, deck, worksheet and PDF you make is listed under "Made in
+  this topic" (the **My stuff** button on phones), so you can jump back to it.
 - **Scanned PDFs** (no text inside) are sent as page images, up to 6 pages.
   They're only kept while the tab is open.
 - **Continue in Claude** opens a new chat in the Claude app with Nawras set up
