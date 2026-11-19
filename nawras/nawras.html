@@ -4,50 +4,52 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap">
 <style>
-/* Layout: one-screen study app. Start screen is a single centered column;
-   the chat view is a topic sidebar + conversation column that stacks on phones. */
+/* Layout: one-screen study app. Start screen = hero (3D Nawras + intro) over a setup card;
+   chat view = topic sidebar with 3D Nawras + conversation column, stacking on phones.
+   Depth language: keycap buttons with a pressed edge, card decks that deal and flip in 3D. */
 :root {
-  --paper: #f3f6f5;
+  --paper: #f1f5f4;
   --surface: #ffffff;
-  --sunk: #e8eeec;
+  --sunk: #e6edeb;
   --ink: #14232a;
   --muted: #56676e;
   --line: #d4dedc;
+  --line-strong: #b9c8c5;
   --accent: #1d6b60;
+  --edge: #0f463f;
   --accent-ink: #ffffff;
-  --accent-soft: #dcece8;
+  --accent-soft: #d9ebe7;
   --hi: #f6d55c;
   --hi-ink: #2a2306;
   --good: #1f7a46;
-  --good-soft: #def2e5;
+  --good-soft: #ddf2e4;
   --bad: #b23a3a;
-  --bad-soft: #f8e2e0;
+  --bad-soft: #f8e1df;
+  --shadow: rgb(20 35 42 / 0.16);
   --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-  --radius: 14px;
+  --radius: 16px;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper: #0e1618; --surface: #152023; --sunk: #1b292c; --ink: #e4edeb; --muted: #93a5a7;
-    --line: #26373b; --accent: #5cc0ae; --accent-ink: #062420; --accent-soft: #1b3a36;
-    --hi: #e8c84a; --hi-ink: #221c02; --good: #6fd39a; --good-soft: #173527; --bad: #f08a80; --bad-soft: #3a1d1b;
+    --paper: #0d1517; --surface: #152023; --sunk: #1b292c; --ink: #e4edeb; --muted: #93a5a7;
+    --line: #27383c; --line-strong: #070d0e; --accent: #5cc0ae; --edge: #2c7e70; --accent-ink: #062420; --accent-soft: #1a3935;
+    --hi: #e8c84a; --hi-ink: #221c02; --good: #6fd39a; --good-soft: #163426; --bad: #f08a80; --bad-soft: #3a1d1b;
+    --shadow: rgb(0 0 0 / 0.5);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --paper: #0e1618; --surface: #152023; --sunk: #1b292c; --ink: #e4edeb; --muted: #93a5a7;
-  --line: #26373b; --accent: #5cc0ae; --accent-ink: #062420; --accent-soft: #1b3a36;
-  --hi: #e8c84a; --hi-ink: #221c02; --good: #6fd39a; --good-soft: #173527; --bad: #f08a80; --bad-soft: #3a1d1b;
+  --paper: #0d1517; --surface: #152023; --sunk: #1b292c; --ink: #e4edeb; --muted: #93a5a7;
+  --line: #27383c; --line-strong: #070d0e; --accent: #5cc0ae; --edge: #2c7e70; --accent-ink: #062420; --accent-soft: #1a3935;
+  --hi: #e8c84a; --hi-ink: #221c02; --good: #6fd39a; --good-soft: #163426; --bad: #f08a80; --bad-soft: #3a1d1b;
+  --shadow: rgb(0 0 0 / 0.5);
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; }
-body {
-  background: var(--paper); color: var(--ink);
-  font: 16px/1.55 var(--font-body);
-  overflow: hidden;
-}
+body { background: var(--paper); color: var(--ink); font: 16px/1.55 var(--font-body); overflow: hidden; }
 button, input, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
@@ -55,74 +57,84 @@ button { cursor: pointer; }
 
 #app { height: 100%; display: grid; grid-template-rows: auto 1fr; grid-template-columns: minmax(0, 1fr); min-height: 0; }
 
+/* ---------- Keycap buttons (the 3D press) ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px;
+  padding: 7px 14px; font-weight: 700; font-size: 0.9rem; text-decoration: none; color: var(--ink); white-space: nowrap;
+  box-shadow: 0 3px 0 var(--line-strong); transform: translateY(0); transition: transform .08s, box-shadow .08s, border-color .15s;
+}
+.btn:hover { border-color: var(--accent); }
+.btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 var(--line-strong); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); box-shadow: 0 3px 0 var(--edge); }
+.btn.primary:active:not(:disabled) { box-shadow: 0 1px 0 var(--edge); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn svg { width: 16px; height: 16px; flex: none; }
+.chip {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 12px; font-size: 0.9rem;
+  box-shadow: 0 2px 0 var(--line-strong); transition: transform .08s, box-shadow .08s;
+}
+.chip:hover { border-color: var(--accent); background: var(--accent-soft); }
+.chip:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 0 0 var(--line-strong); }
+.chip:disabled { opacity: .5; }
+
 /* ---------- Header ---------- */
 .bar {
-  display: flex; align-items: center; gap: 12px;
-  padding-block: 10px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-  border-bottom: 1px solid var(--line); background: var(--surface);
+  display: flex; align-items: center; gap: 12px; padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  border-bottom: 1px solid var(--line); background: var(--surface); position: relative; z-index: 2;
 }
 .brand { display: flex; align-items: center; gap: 10px; font: 800 1.25rem/1 var(--font-display); letter-spacing: -0.01em; background: none; border: 0; padding: 0; }
 .mark {
   width: 34px; height: 34px; flex: none; display: grid; place-items: center;
-  background: var(--accent); color: var(--accent-ink);
-  border-radius: 12px 12px 12px 4px;
-  font: 800 1.1rem/1 var(--font-display);
+  background: var(--accent); color: var(--accent-ink); border-radius: 12px 12px 12px 4px;
+  font: 800 1.1rem/1 var(--font-display); box-shadow: 0 3px 0 var(--edge);
 }
-.bar .topic-pill {
-  min-width: 0; flex: 1; color: var(--muted); font-size: 0.95rem;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
+#barAvatar { width: 40px; height: 40px; flex: none; display: none; margin: -4px 0; }
+#barAvatar.has3d { display: block; }
+#barAvatar.has3d + .mark { display: none; }
+.bar .topic-pill { min-width: 0; flex: 1; color: var(--muted); font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bar .actions { display: flex; gap: 8px; flex: none; }
-.btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  border: 1px solid var(--line); background: var(--surface); border-radius: 999px;
-  padding: 7px 14px; font-weight: 700; font-size: 0.9rem; text-decoration: none; color: var(--ink);
-  white-space: nowrap;
-}
-.btn:hover { border-color: var(--accent); }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-.btn.primary:hover { filter: brightness(1.08); }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn svg { width: 16px; height: 16px; }
 @media (max-width: 560px) { .btn .long { display: none; } .bar .topic-pill { visibility: hidden; } .bar .actions .btn { padding: 7px 11px; } }
+
+/* ---------- 3D avatar hosts ---------- */
+.avatar-host { position: relative; }
+.avatar-host canvas { display: block; width: 100% !important; height: 100% !important; }
+.avatar-flat { position: absolute; inset: 0; display: grid; place-items: center; }
+.avatar-flat .mark { width: 96px; height: 96px; font-size: 3rem; border-radius: 30px 30px 30px 10px; box-shadow: 0 8px 0 var(--edge); }
+.avatar-host.has3d .avatar-flat { display: none; }
 
 /* ---------- Start screen ---------- */
 #start { overflow-y: auto; min-height: 0; }
 .start-inner {
-  max-width: 660px; margin: 0 auto;
-  padding-block: 40px 56px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-  display: grid; gap: 28px;
+  max-width: 720px; margin: 0 auto; padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 26px;
 }
-.hello h1 {
-  font: 800 clamp(2.1rem, 6vw, 3.2rem)/1.02 var(--font-display); letter-spacing: -0.03em; margin: 0 0 12px;
-  text-wrap: balance;
-}
+.hello { display: grid; grid-template-columns: minmax(0, 1fr) 300px; align-items: center; gap: 8px; }
+.hello-text { min-width: 0; }
+#heroAvatar { height: 270px; }
+.hello h1 { font: 800 clamp(2.1rem, 6vw, 3.2rem)/1.02 var(--font-display); letter-spacing: -0.03em; margin: 0 0 12px; text-wrap: balance; }
 .hello h1 .hey { background: linear-gradient(transparent 58%, var(--hi) 58%, var(--hi) 92%, transparent 92%); padding: 0 4px; margin: 0 -4px; }
-.hello p { margin: 0; color: var(--muted); font-size: 1.08rem; max-width: 56ch; }
+.hello p { margin: 0; color: var(--muted); font-size: 1.08rem; max-width: 52ch; }
+@media (max-width: 640px) {
+  .hello { grid-template-columns: minmax(0, 1fr); }
+  #heroAvatar { order: -1; height: 200px; margin: -8px 0 -4px; }
+}
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
-.setup { padding: 20px; display: grid; gap: 16px; }
+.setup { padding: 20px; display: grid; gap: 16px; box-shadow: 0 4px 0 var(--line-strong), 0 24px 48px -28px var(--shadow); }
 .setup .lbl { font: 700 0.8rem/1 var(--font-body); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
 .field { display: grid; gap: 8px; }
-textarea.input {
-  width: 100%; resize: vertical; min-height: 84px; padding: 12px 14px;
-  border: 1px solid var(--line); border-radius: 10px; background: var(--paper);
-}
+textarea.input { width: 100%; resize: vertical; min-height: 84px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); }
 textarea.input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
 .drop {
-  border: 2px dashed var(--line); border-radius: 12px; padding: 18px; text-align: center;
-  color: var(--muted); background: var(--paper); cursor: pointer; display: grid; gap: 4px; justify-items: center;
+  border: 2px dashed var(--line); border-radius: 12px; padding: 18px; text-align: center; color: var(--muted); background: var(--paper);
+  cursor: pointer; display: grid; gap: 4px; justify-items: center;
 }
 .drop:hover, .drop.over { border-color: var(--accent); color: var(--ink); background: var(--accent-soft); }
 .drop strong { color: var(--ink); }
 .drop svg { width: 26px; height: 26px; color: var(--accent); }
-.docline {
-  display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px;
-  background: var(--accent-soft); font-size: 0.95rem; min-width: 0;
-}
+.docline { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; background: var(--accent-soft); font-size: 0.95rem; min-width: 0; }
 .docline .name { font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .docline .meta { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .docline .x { margin-left: auto; border: 0; background: none; color: var(--muted); font-size: 1.2rem; line-height: 1; padding: 2px 6px; border-radius: 6px; }
@@ -130,18 +142,19 @@ textarea.input:focus { border-color: var(--accent); outline: none; box-shadow: 0
 .docline.err { background: var(--bad-soft); color: var(--bad); }
 .examples { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .examples span { color: var(--muted); font-size: 0.9rem; margin-right: 2px; }
-.chip {
-  border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 12px; font-size: 0.9rem;
-}
-.chip:hover { border-color: var(--accent); background: var(--accent-soft); }
 .start-go { display: flex; justify-content: flex-end; }
 .start-go .btn { padding: 11px 20px; font-size: 1rem; }
-.can { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-@media (max-width: 520px) { .can { grid-template-columns: minmax(0, 1fr); } }
-.can div { padding: 12px 14px; border-radius: 12px; background: var(--sunk); font-size: 0.95rem; }
+.section-h { font: 700 0.8rem/1 var(--font-body); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 10px; }
+.can { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; perspective: 900px; }
+@media (max-width: 640px) { .can { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 400px) { .can { grid-template-columns: minmax(0, 1fr); } }
+.can div {
+  padding: 12px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); font-size: 0.93rem;
+  box-shadow: 0 3px 0 var(--line-strong); transition: transform .25s ease;
+}
+.can div:hover { transform: rotateX(8deg) rotateY(-6deg) translateY(-3px); }
 .can b { display: block; font-family: var(--font-display); font-size: 1rem; margin-bottom: 2px; }
 .can q { color: var(--muted); quotes: "\201C" "\201D"; }
-.section-h { font: 700 0.8rem/1 var(--font-body); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 10px; }
 .recents { display: grid; gap: 8px; }
 .recent { display: flex; align-items: center; gap: 10px; padding: 10px 12px; min-width: 0; }
 .recent button.open { flex: 1; min-width: 0; text-align: left; border: 0; background: none; padding: 0; display: grid; }
@@ -154,44 +167,40 @@ textarea.input:focus { border-color: var(--accent); outline: none; box-shadow: 0
 /* ---------- Chat view ---------- */
 #chat { display: grid; grid-template-columns: 280px minmax(0, 1fr); min-height: 0; }
 #chat[hidden] { display: none; }
-aside.side {
-  border-right: 1px solid var(--line); overflow-y: auto; padding: 20px 16px; display: grid; gap: 20px; align-content: start;
-  background: var(--surface);
-}
+aside.side { border-right: 1px solid var(--line); overflow-y: auto; padding: 8px 16px 20px; display: grid; gap: 18px; align-content: start; background: var(--surface); }
+#sideAvatar { height: 170px; margin: 0 -16px -6px; }
 .side .topic h2 { font: 800 1.3rem/1.15 var(--font-display); margin: 4px 0 0; overflow-wrap: anywhere; text-wrap: balance; }
 .side .doc { margin-top: 10px; font-size: 0.9rem; color: var(--muted); overflow-wrap: anywhere; }
 .side .doc b { color: var(--ink); }
 .side .note { font-size: 0.85rem; color: var(--muted); margin: 6px 0 0; }
-.asks { display: grid; gap: 6px; }
+.asks { display: grid; gap: 8px; }
 .ask {
-  text-align: left; border: 1px solid var(--line); background: var(--paper); border-radius: 10px; padding: 9px 12px;
-  display: grid; gap: 1px;
+  text-align: left; border: 1px solid var(--line); background: var(--paper); border-radius: 12px; padding: 9px 12px; display: grid; gap: 1px;
+  box-shadow: 0 3px 0 var(--line-strong); transition: transform .08s, box-shadow .08s;
 }
 .ask:hover { border-color: var(--accent); background: var(--accent-soft); }
+.ask:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 var(--line-strong); }
+.ask:disabled { opacity: .5; cursor: not-allowed; }
 .ask b { font-size: 0.95rem; }
 .ask small { color: var(--muted); font-size: 0.82rem; }
 .tip { font-size: 0.88rem; color: var(--muted); padding: 12px; border-radius: 10px; background: var(--sunk); }
 .tip b { color: var(--ink); }
 
 .convo { display: grid; grid-template-rows: 1fr auto; min-height: 0; }
-.log { overflow-y: auto; min-height: 0; padding-block: 24px 12px; }
+.log { overflow-y: auto; overflow-x: hidden; min-height: 0; padding-block: 24px 12px; }
 .log-inner {
   max-width: 760px; margin: 0 auto; display: grid; gap: 22px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
 .msg { display: grid; gap: 6px; min-width: 0; }
 .msg.user { justify-items: end; }
-.msg.user .bubble {
-  background: var(--accent-soft); border-radius: 16px 16px 4px 16px; padding: 10px 14px; max-width: min(85%, 560px);
-  white-space: pre-wrap; overflow-wrap: anywhere;
-}
+.msg.user .bubble { background: var(--accent-soft); border-radius: 16px 16px 4px 16px; padding: 10px 14px; max-width: min(85%, 560px); white-space: pre-wrap; overflow-wrap: anywhere; }
 .msg.user .bubble .wake { background: var(--hi); color: var(--hi-ink); border-radius: 4px; padding: 0 3px; font-weight: 700; }
 .msg.bot { grid-template-columns: 34px minmax(0, 1fr); column-gap: 12px; align-items: start; }
-.msg.bot .mark { width: 30px; height: 30px; font-size: 0.95rem; border-radius: 10px 10px 10px 3px; margin-top: 2px; }
-.msg.bot .body { min-width: 0; display: grid; gap: 8px; }
+.msg.bot > .mark { width: 30px; height: 30px; font-size: 0.95rem; border-radius: 10px 10px 10px 3px; margin-top: 2px; box-shadow: 0 2px 0 var(--edge); }
+.msg.bot .body { min-width: 0; display: grid; gap: 10px; }
 .who { font: 700 0.8rem/1 var(--font-body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
-.md { overflow-wrap: anywhere; }
+.md { overflow-wrap: anywhere; min-width: 0; }
 .md > :first-child { margin-top: 0; }
 .md > :last-child { margin-bottom: 0; }
 .md h1, .md h2, .md h3, .md h4 { font-family: var(--font-display); line-height: 1.2; margin: 1.1em 0 0.4em; text-wrap: balance; }
@@ -199,7 +208,6 @@ aside.side {
 .md p { margin: 0.55em 0; }
 .md ul, .md ol { padding-left: 1.4em; margin: 0.5em 0; }
 .md li { margin: 0.2em 0; }
-.md strong { font-weight: 700; }
 .md code { font-family: var(--font-mono); font-size: 0.9em; background: var(--sunk); padding: 1px 5px; border-radius: 5px; }
 .md pre { background: var(--sunk); padding: 12px 14px; border-radius: 10px; overflow-x: auto; }
 .md pre code { background: none; padding: 0; }
@@ -212,49 +220,130 @@ aside.side {
 .thinking { color: var(--muted); display: inline-flex; gap: 4px; align-items: center; }
 .thinking i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: blink 1.2s infinite ease-in-out; }
 .thinking i:nth-child(2) { animation-delay: 0.15s; } .thinking i:nth-child(3) { animation-delay: 0.3s; }
+.thinking span { margin-left: 6px; font-size: .9rem; }
 @keyframes blink { 0%, 80%, 100% { opacity: 0.25; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
 .tools { display: flex; gap: 6px; flex-wrap: wrap; }
 .tool {
   border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 3px 10px; font-size: 0.82rem; color: var(--muted);
-  display: inline-flex; align-items: center; gap: 5px;
+  display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 2px 0 var(--line-strong);
 }
 .tool:hover { color: var(--ink); border-color: var(--accent); }
+.tool:active { transform: translateY(1px); box-shadow: 0 1px 0 var(--line-strong); }
 .tool svg { width: 14px; height: 14px; }
 .errnote { color: var(--bad); font-size: 0.92rem; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
-/* Quiz */
-.quiz { padding: 16px; display: grid; gap: 16px; }
-.quiz h3 { margin: 0; font: 800 1.15rem/1.2 var(--font-display); }
-.quiz .progress { color: var(--muted); font-size: 0.88rem; font-variant-numeric: tabular-nums; }
-.qq { display: grid; gap: 8px; }
-.qq .qt { font-weight: 700; }
-.qq .qt span { color: var(--muted); font-variant-numeric: tabular-nums; margin-right: 4px; }
-.choices { display: grid; gap: 6px; }
-.choice {
-  text-align: left; border: 1px solid var(--line); background: var(--paper); border-radius: 10px; padding: 8px 12px;
-  display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 8px; align-items: start; overflow-wrap: anywhere;
+/* ---------- PDF card ---------- */
+.pdfcard {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: center; padding: 16px 18px;
+  box-shadow: 0 4px 0 var(--line-strong), 0 22px 40px -26px var(--shadow);
 }
-.choice .l { font-weight: 700; color: var(--muted); }
-.choice:hover:not(:disabled) { border-color: var(--accent); }
-.choice:disabled { cursor: default; }
-.choice.right { background: var(--good-soft); border-color: var(--good); }
-.choice.right .l { color: var(--good); }
-.choice.wrong { background: var(--bad-soft); border-color: var(--bad); }
-.choice.wrong .l { color: var(--bad); }
-.why { font-size: 0.92rem; padding: 8px 12px; border-radius: 10px; background: var(--sunk); }
-.why b.ok { color: var(--good); } .why b.no { color: var(--bad); }
-.score { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding-top: 12px; border-top: 1px solid var(--line); }
-.score .num { font: 800 1.6rem/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.paper3d { position: relative; width: 92px; aspect-ratio: 8.5 / 11; perspective: 600px; flex: none; }
+.paper3d .sheet {
+  position: absolute; inset: 0; background: #fff; border-radius: 4px; border: 1px solid #d8dfde; overflow: hidden;
+  transform: rotateY(-22deg) rotateX(10deg); transform-origin: 30% 50%; transition: transform .4s ease;
+  box-shadow: 10px 12px 18px -8px var(--shadow);
+}
+.paper3d .sheet.s2 { transform: rotateY(-22deg) rotateX(10deg) translate3d(7px, 6px, -14px); }
+.paper3d .sheet.s3 { transform: rotateY(-22deg) rotateX(10deg) translate3d(14px, 12px, -28px); }
+.pdfcard:hover .paper3d .sheet.s1 { transform: rotateY(-6deg) rotateX(3deg) translateZ(14px); }
+.paper3d canvas { width: 100%; height: 100%; display: block; }
+.paper3d .skel { padding: 10px 9px; display: grid; gap: 5px; }
+.paper3d .skel i { height: 4px; border-radius: 2px; background: #dfe6e4; display: block; }
+.paper3d .skel i:first-child { height: 7px; width: 70%; background: #1d6b60; }
+.paper3d .badge { position: absolute; right: -8px; bottom: -6px; z-index: 3; background: var(--bad); color: #fff; font: 800 .7rem/1 var(--font-body); padding: 4px 6px; border-radius: 6px; letter-spacing: .04em; box-shadow: 0 2px 0 rgb(0 0 0 / .25); }
+.pdfinfo { min-width: 0; display: grid; gap: 4px; justify-items: start; }
+.pdfinfo .t { font: 800 1.08rem/1.2 var(--font-display); overflow-wrap: anywhere; }
+.pdfinfo .m { color: var(--muted); font-size: .9rem; font-variant-numeric: tabular-nums; }
+.pdfinfo .btn { margin-top: 6px; }
+@media (max-width: 420px) { .paper3d { width: 70px; } .pdfcard { gap: 14px; padding: 14px; } }
 
-/* Composer */
+/* ---------- 3D card decks (quiz + flashcards) ---------- */
+.deck { display: grid; gap: 14px; min-width: 0; }
+.deck-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.deck-top h3 { margin: 0; font: 800 1.15rem/1.2 var(--font-display); min-width: 0; overflow-wrap: anywhere; }
+.deck-count { color: var(--muted); font-size: .88rem; font-variant-numeric: tabular-nums; }
+.stage { perspective: 1400px; position: relative; isolation: isolate; outline: none; padding-bottom: 14px; }
+.stage::before, .stage::after {
+  content: ""; position: absolute; left: 14px; right: 14px; top: 10px; bottom: 6px; z-index: -1;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 20px; transform: translateY(6px) scale(.97);
+}
+.stage::after { left: 28px; right: 28px; top: 22px; bottom: 0; transform: translateY(8px) scale(.94); opacity: .7; }
+.stage.last::before, .stage.last::after { display: none; }
+.deal { transform-style: preserve-3d; }
+.deal.in { animation: dealIn .55s cubic-bezier(.2, .8, .25, 1) both; }
+.deal.back-in { animation: dealBack .45s cubic-bezier(.2, .8, .25, 1) both; }
+@keyframes dealIn { from { opacity: 0; transform: translate3d(70px, -10px, -240px) rotateY(-38deg) rotateZ(4deg); } }
+@keyframes dealBack { from { opacity: 0; transform: translate3d(-70px, -10px, -240px) rotateY(38deg); } }
+.flip { display: grid; transform-style: preserve-3d; transition: transform .65s cubic-bezier(.2, .75, .2, 1); }
+.flip.flipped { transform: rotateY(180deg); }
+.face {
+  grid-area: 1 / 1; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 22px;
+  box-shadow: 0 4px 0 var(--line-strong), 0 26px 50px -30px var(--shadow);
+  display: grid; gap: 14px; align-content: start; min-width: 0;
+}
+.face.back { transform: rotateY(180deg); }
+.qhead { display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; }
+.qnum { font: 700 .8rem/1 var(--font-body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-variant-numeric: tabular-nums; }
+.qtype { font-size: .78rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+.qtext { font: 700 1.2rem/1.35 var(--font-display); margin: 0; overflow-wrap: anywhere; text-wrap: pretty; }
+.choices { display: grid; gap: 8px; }
+.choices.tf { grid-template-columns: 1fr 1fr; }
+.choice {
+  text-align: left; border: 1px solid var(--line); background: var(--paper); border-radius: 12px; padding: 10px 12px;
+  display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; align-items: center; overflow-wrap: anywhere;
+  box-shadow: 0 3px 0 var(--line-strong); transition: transform .08s, box-shadow .08s, border-color .15s;
+}
+.choice .l { font-weight: 800; color: var(--muted); width: 24px; height: 24px; display: grid; place-items: center; border-radius: 7px; background: var(--surface); border: 1px solid var(--line); font-size: .8rem; }
+.choice:hover:not(:disabled) { border-color: var(--accent); }
+.choice:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 var(--line-strong); }
+.choice:disabled { cursor: default; }
+.fill { display: flex; gap: 8px; flex-wrap: wrap; }
+.fill input {
+  flex: 1 1 180px; min-width: 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper);
+}
+.fill input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.result { display: flex; gap: 12px; align-items: center; }
+.result .ico { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; flex: none; font: 800 1.5rem/1 var(--font-display); }
+.result.ok .ico { background: var(--good-soft); color: var(--good); box-shadow: 0 3px 0 var(--good); }
+.result.no .ico { background: var(--bad-soft); color: var(--bad); box-shadow: 0 3px 0 var(--bad); }
+.result b { font: 800 1.35rem/1.1 var(--font-display); display: block; }
+.result.ok b { color: var(--good); } .result.no b { color: var(--bad); }
+.result span { color: var(--muted); font-size: .9rem; }
+.kv { display: grid; gap: 6px; }
+.kv div { padding: 9px 12px; border-radius: 10px; background: var(--sunk); overflow-wrap: anywhere; }
+.kv small { display: block; font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 700; }
+.face .row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.dots { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.dot { width: 26px; height: 26px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); font-size: .72rem; font-weight: 700; color: var(--muted); padding: 0; box-shadow: 0 2px 0 var(--line-strong); font-variant-numeric: tabular-nums; }
+.dot.ok { background: var(--good-soft); color: var(--good); border-color: var(--good); }
+.dot.no { background: var(--bad-soft); color: var(--bad); border-color: var(--bad); }
+.dot.cur { outline: 2px solid var(--accent); outline-offset: 1px; }
+.deck-bar { display: flex; gap: 8px; justify-content: space-between; flex-wrap: wrap; align-items: center; }
+.deck-bar .grp { display: flex; gap: 8px; flex-wrap: wrap; }
+.score-face { justify-items: center; text-align: center; }
+.ring { width: 132px; height: 132px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--good) calc(var(--p) * 1%), var(--sunk) 0); box-shadow: 0 5px 0 var(--line-strong); }
+.ring div { width: 100px; height: 100px; border-radius: 50%; background: var(--surface); display: grid; place-items: center; font: 800 1.8rem/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.score-face p { margin: 0; color: var(--muted); max-width: 40ch; }
+.score-face .row { justify-content: center; }
+
+.fcard { cursor: pointer; }
+.fcard .face { min-height: 220px; align-content: center; justify-items: center; text-align: center; }
+.fcard .face .side-l { position: absolute; top: 16px; left: 18px; font: 700 .75rem/1 var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.fcard .face { position: relative; }
+.fcard .front .big { font: 800 clamp(1.3rem, 4vw, 1.8rem)/1.2 var(--font-display); overflow-wrap: anywhere; text-wrap: balance; }
+.fcard .back { background: var(--accent-soft); }
+.fcard .back .big { font-size: 1.1rem; line-height: 1.5; overflow-wrap: anywhere; max-width: 46ch; }
+.fcard .hint2 { position: absolute; bottom: 14px; left: 0; right: 0; color: var(--muted); font-size: .82rem; }
+.known-yes { color: var(--good); } .known-no { color: var(--bad); }
+
+/* ---------- Composer ---------- */
 .composer-wrap {
-  border-top: 1px solid var(--line); background: var(--surface);
-  padding-block: 10px 12px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  border-top: 1px solid var(--line); background: var(--surface); padding-block: 10px 12px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
 .composer-inner { max-width: 760px; margin: 0 auto; display: grid; gap: 8px; }
-.quick { display: none; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.quick { display: none; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
 .quick::-webkit-scrollbar { display: none; }
 .quick .chip { flex: none; }
 .composer {
@@ -262,21 +351,23 @@ aside.side {
   border: 1px solid var(--line); border-radius: 16px; background: var(--paper); padding: 6px 6px 6px 14px;
 }
 .composer:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-.composer textarea {
-  border: 0; background: none; resize: none; outline: none; padding: 8px 0; max-height: 180px; min-height: 40px; line-height: 1.45;
-}
-.icon-btn {
-  width: 40px; height: 40px; border-radius: 12px; border: 0; display: grid; place-items: center;
-  background: var(--sunk); color: var(--ink);
-}
+.composer textarea { border: 0; background: none; resize: none; outline: none; padding: 8px 0; max-height: 180px; min-height: 40px; line-height: 1.45; }
+.icon-btn { width: 40px; height: 40px; border-radius: 12px; border: 0; display: grid; place-items: center; background: var(--sunk); color: var(--ink); box-shadow: 0 2px 0 var(--line-strong); }
 .icon-btn svg { width: 20px; height: 20px; }
 .icon-btn:hover { background: var(--accent-soft); }
-.icon-btn.send { background: var(--accent); color: var(--accent-ink); }
+.icon-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
+.icon-btn.send { background: var(--accent); color: var(--accent-ink); box-shadow: 0 2px 0 var(--edge); }
 .icon-btn.send:disabled { opacity: 0.45; cursor: not-allowed; }
 .icon-btn.live { background: var(--bad); color: var(--paper); animation: pulse 1.4s infinite; }
 @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--bad) 50%, transparent); } 50% { box-shadow: 0 0 0 6px transparent; } }
 .hint { font-size: 0.8rem; color: var(--muted); text-align: center; }
 .banner { padding: 10px 14px; border-radius: 10px; background: var(--bad-soft); color: var(--bad); font-size: 0.92rem; }
+.toast {
+  position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%) translateY(20px); opacity: 0;
+  background: var(--ink); color: var(--paper); padding: 10px 16px; border-radius: 12px; font-size: .92rem; z-index: 20;
+  transition: opacity .2s, transform .2s; pointer-events: none; max-width: calc(100% - 32px); text-align: center;
+}
+.toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 @media (max-width: 900px) {
   #chat { grid-template-columns: minmax(0, 1fr); }
@@ -285,12 +376,14 @@ aside.side {
 }
 @media (prefers-reduced-motion: reduce) {
   .thinking i, .icon-btn.live { animation: none; }
+  .deal.in, .deal.back-in { animation: none; }
+  .flip, .paper3d .sheet, .can div { transition: none; }
 }
 </style>
 
 <div id="app">
   <header class="bar">
-    <button class="brand" id="home" type="button" aria-label="Nawras home"><span class="mark" aria-hidden="true">N</span><span>Nawras</span></button>
+    <button class="brand" id="home" type="button" aria-label="Nawras home"><span class="avatar-host" id="barAvatar"></span><span class="mark" aria-hidden="true">N</span><span>Nawras</span></button>
     <div class="topic-pill" id="topicPill"></div>
     <div class="actions">
       <a class="btn" id="openClaude" href="https://claude.ai/new" target="_blank" rel="noopener" hidden>
@@ -307,8 +400,11 @@ aside.side {
   <section id="start">
     <div class="start-inner">
       <div class="hello">
-        <h1><span class="hey">Hey,</span> I'm Nawras.</h1>
-        <p>Tell me what you're learning or drop in a PDF. I'll teach it to you, make study guides and quizzes, and help you teach it to someone else.</p>
+        <div class="hello-text">
+          <h1><span class="hey">Hey,</span> I'm Nawras.</h1>
+          <p>Tell me what you're learning or drop in a PDF. I'll teach it to you, make study guides, quizzes and flashcards, turn them into PDFs, and help you teach it to someone else.</p>
+        </div>
+        <div class="avatar-host" id="heroAvatar"><div class="avatar-flat"><span class="mark">N</span></div></div>
       </div>
 
       <form class="card setup" id="setup" autocomplete="off">
@@ -345,6 +441,8 @@ aside.side {
           <div><b>Study guide</b><q>Hey Nawras, make me a study guide about this</q></div>
           <div><b>Step by step</b><q>Hey Nawras, how do I add this to this?</q></div>
           <div><b>Quiz</b><q>Hey Nawras, make me a quiz like that</q></div>
+          <div><b>Flashcards</b><q>Hey Nawras, make me flashcards</q></div>
+          <div><b>PDF</b><q>Hey Nawras, turn that into a PDF</q></div>
         </div>
       </div>
 
@@ -357,6 +455,7 @@ aside.side {
 
   <section id="chat" hidden>
     <aside class="side">
+      <div class="avatar-host" id="sideAvatar"><div class="avatar-flat"><span class="mark">N</span></div></div>
       <div class="topic">
         <div class="who">You're learning</div>
         <h2 id="sideTopic"></h2>
@@ -377,7 +476,7 @@ aside.side {
           <div class="quick" id="quick"></div>
           <form class="composer" id="composer">
             <label class="sr" for="msg">Message Nawras</label>
-            <textarea id="msg" rows="1" placeholder="Hey Nawras, make me a study guide…"></textarea>
+            <textarea id="msg" rows="1" placeholder="Hey Nawras, make me a study guide PDF…"></textarea>
             <button class="icon-btn" id="mic" type="button" aria-label="Talk to Nawras" hidden>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
             </button>
@@ -390,6 +489,7 @@ aside.side {
       </div>
     </div>
   </section>
+  <div class="toast" id="toast" role="status"></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
@@ -402,19 +502,24 @@ aside.side {
   const STORE_KEY = "nawras.v1";
   const MAX_DOC_CHARS = 120000;      // keeps every request well under the 256 KiB limit
   const MAX_INPUT_BYTES = 230000;
-  const PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+  const CDN = "https://cdnjs.cloudflare.com/ajax/libs/";
+  const PDFJS = CDN + "pdf.js/3.11.174/";
+  const THREE_URL = CDN + "three.js/r128/three.min.js";
+  const JSPDF_URL = CDN + "jspdf/2.5.1/jspdf.umd.min.js";
   const SEND_SVG = '<path d="M5 12h14M13 6l6 6-6 6"/>';
   const STOP_SVG = '<rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor"/>';
   const SPEAK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
   const COPY_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a1 1 0 0 1 1-1h10"/></svg>';
+  const PDF_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 11v6M9 14l3 3 3-3"/></svg>';
 
   // "Hey Nawras" plus the ways speech-to-text tends to hear it.
   const WAKE = /^\s*(?:(?:hey|hi|hello|ok|okay|yo)[\s,]+)?(?:nawras|nauras|nowras|nawrus|narwas|nawress|nauress|narrator|norris|noras|nora's|now ras|naw ras|nau ras)\b[\s,.!:?-]*/i;
 
   const ASKS = [
     { label: "Teach me this", sub: "Step by step, from the start", text: "Hey Nawras, teach me this step by step." },
-    { label: "Make a study guide", sub: "Key ideas, terms, practice", text: "Hey Nawras, make me a study guide about this." },
-    { label: "Quiz me", sub: "5 multiple-choice questions", text: "Hey Nawras, make me a quiz about this." },
+    { label: "Study guide PDF", sub: "Key ideas, terms, practice", text: "Hey Nawras, make me a study guide PDF about this." },
+    { label: "Quiz me", sub: "3D quiz cards that flip", text: "Hey Nawras, make me a quiz about this." },
+    { label: "Flashcards", sub: "Flip, sort, and study", text: "Hey Nawras, make me flashcards about this." },
     { label: "How do I…", sub: "Walk me through a problem", fill: "Hey Nawras, how do I " },
     { label: "Explain it simpler", sub: "Say that again, easier", text: "Hey Nawras, explain that again in a simpler way." },
     { label: "Help me teach it", sub: "A mini lesson plan for others", text: "Hey Nawras, help me teach this to someone else." },
@@ -422,13 +527,15 @@ aside.side {
 
   const $ = (s) => document.querySelector(s);
   const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+  const button = (cls, text, onclick) => { const b = el("button", cls, text); b.type = "button"; if (onclick) b.onclick = onclick; return b; };
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
   // ---------- state ----------
   let store = { sessions: [], currentId: null };
-  let cur = null;             // current session
-  let draftDoc = null;        // doc picked on the start screen, before starting
+  let cur = null;
+  let draftDoc = null;
   let pageImages = {};        // sessionId -> Blob[] for scanned PDFs (memory only)
-  let sample = null, tts = null, dict = null;
+  let sample = null, tts = null, dict = null, downloads = null;
   let imageLimits = null;
   let busy = false, ctl = null;
   let samplingDead = false;
@@ -442,11 +549,210 @@ aside.side {
   function save() {
     const attempt = (data) => { localStorage.setItem(STORE_KEY, JSON.stringify(data)); };
     try { attempt(store); return; } catch (_) {}
-    try { // quota: keep chats, trim the stored documents
-      const slim = { ...store, sessions: store.sessions.map((s) => ({ ...s, docText: (s.docText || "").slice(0, 20000) })) };
-      attempt(slim);
-    } catch (_) {}
+    try { attempt({ ...store, sessions: store.sessions.map((s) => ({ ...s, docText: (s.docText || "").slice(0, 20000) })) }); } catch (_) {}
   }
+
+  let toastTimer = 0;
+  function toast(msg) {
+    const t = $("#toast"); t.textContent = msg; t.classList.add("on");
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("on"), 2600);
+  }
+
+  const scripts = {};
+  function loadScript(src) {
+    if (!scripts[src]) {
+      scripts[src] = new Promise((res, rej) => {
+        const s = document.createElement("script"); s.src = src; s.onload = res;
+        s.onerror = () => { delete scripts[src]; s.remove(); rej(new Error("Couldn't load a part of the app. Check your connection.")); };
+        document.head.appendChild(s);
+      });
+    }
+    return scripts[src];
+  }
+
+  // =====================================================================
+  // 3D Nawras (three.js)
+  // =====================================================================
+  const Avatar = (() => {
+    let T, renderer, scene, camera, root, headGroup, smile, mouth, tassel, orbit, dots, shadow, bodyMat;
+    const pupils = [];
+    let host = null, mode = "hero", state = "idle", reactKind = null, reactStart = 0;
+    let blinkAt = 2, blinkEnd = 0, clock = 0, last = 0, started = false, initP = null;
+    const ptr = { x: 0, y: 0 }, look = { x: 0, y: 0 };
+    let ro = null;
+    const FRAME = { hero: { h: 1.95, w: 2.75, cy: 0.18 }, side: { h: 1.6, w: 1.45, cy: 0.2 }, bar: { h: 1.35, w: 1.35, cy: 0.05 } };
+
+    const cssVar = (n, fb) => (getComputedStyle(document.documentElement).getPropertyValue(n).trim() || fb);
+    function std(color, rough = 0.5) { return new T.MeshStandardMaterial({ color, roughness: rough, metalness: 0.05 }); }
+    function ball(r, mat, seg = 24) { return new T.Mesh(new T.SphereGeometry(r, seg, Math.round(seg * 0.66)), mat); }
+
+    function build() {
+      scene = new T.Scene();
+      camera = new T.PerspectiveCamera(30, 1, 0.1, 100);
+      scene.add(new T.HemisphereLight(0xffffff, 0x4a5a60, 0.95));
+      const key = new T.DirectionalLight(0xffffff, 0.85); key.position.set(3, 5, 6); scene.add(key);
+      const rim = new T.DirectionalLight(0xffffff, 0.35); rim.position.set(-4, 2, -3); scene.add(rim);
+
+      root = new T.Group(); scene.add(root);
+      headGroup = new T.Group(); root.add(headGroup);
+      bodyMat = std(0x1d6b60, 0.42);
+      const head = ball(1, bodyMat, 56); head.scale.set(1, 0.96, 0.94); headGroup.add(head);
+      const yellow = std(0xf6d55c, 0.4);
+      for (const s of [-1, 1]) { const ear = ball(0.2, yellow); ear.scale.set(0.6, 1, 1); ear.position.set(s * 0.97, 0.02, 0); headGroup.add(ear); }
+      const visor = ball(0.78, std(0xf6f8f7, 0.3), 56); visor.scale.set(1, 0.78, 0.45); visor.position.set(0, -0.02, 0.62); headGroup.add(visor);
+      const dark = std(0x14232a, 0.3);
+      for (const s of [-1, 1]) {
+        const p = new T.Group();
+        const b = ball(0.12, dark); b.scale.set(1, 1.15, 0.5);
+        const glint = ball(0.035, new T.MeshBasicMaterial({ color: 0xffffff }), 12); glint.position.set(0.04, 0.05, 0.05);
+        p.add(b, glint); p.position.set(s * 0.27, 0.08, 0.95); p.userData.base = p.position.clone();
+        headGroup.add(p); pupils.push(p);
+      }
+      smile = new T.Mesh(new T.TorusGeometry(0.15, 0.032, 10, 28, Math.PI), dark);
+      smile.rotation.z = Math.PI; smile.position.set(0, -0.15, 0.965); headGroup.add(smile);
+      mouth = ball(0.11, std(0x3a1720, 0.6)); mouth.position.set(0, -0.22, 0.955); mouth.scale.set(1.2, 0.3, 0.4); mouth.visible = false; headGroup.add(mouth);
+      const pink = std(0xf3a3a3, 0.6);
+      for (const s of [-1, 1]) { const c = ball(0.08, pink, 16); c.scale.set(1.3, 0.75, 0.35); c.position.set(s * 0.5, -0.13, 0.88); headGroup.add(c); }
+
+      // graduation cap
+      const capMat = std(0x1b2a30, 0.6);
+      const cap = new T.Group(); cap.position.set(0, 0.8, -0.05); cap.rotation.set(-0.12, 0, 0.1); headGroup.add(cap);
+      cap.add(new T.Mesh(new T.CylinderGeometry(0.6, 0.7, 0.34, 40), capMat));
+      const board = new T.Mesh(new T.BoxGeometry(1.5, 0.07, 1.5), capMat); board.position.y = 0.2; board.rotation.y = Math.PI / 4; cap.add(board);
+      const knob = new T.Mesh(new T.CylinderGeometry(0.07, 0.07, 0.05, 16), yellow); knob.position.y = 0.255; cap.add(knob);
+      const cord = new T.Mesh(new T.CylinderGeometry(0.018, 0.018, 1.0, 8), yellow); cord.rotation.z = Math.PI / 2; cord.position.set(0.5, 0.245, 0); cap.add(cord);
+      tassel = new T.Group(); tassel.position.set(1.0, 0.24, 0); cap.add(tassel);
+      const str = new T.Mesh(new T.CylinderGeometry(0.02, 0.02, 0.5, 8), yellow); str.position.y = -0.25; tassel.add(str);
+      const bead = new T.Mesh(new T.ConeGeometry(0.08, 0.2, 12), yellow); bead.position.y = -0.55; tassel.add(bead);
+
+      shadow = new T.Mesh(new T.CircleGeometry(0.85, 40), new T.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.14, depthWrite: false }));
+      shadow.rotation.x = -Math.PI / 2; shadow.position.y = -1.3; scene.add(shadow);
+
+      dots = new T.Group(); root.add(dots); dots.visible = false;
+      for (let i = 0; i < 3; i++) dots.add(ball(0.075, yellow, 12));
+
+      // things orbiting Nawras on the start screen
+      orbit = new T.Group(); scene.add(orbit);
+      const book = new T.Group();
+      const cover = new T.Mesh(new T.BoxGeometry(0.62, 0.14, 0.46), std(0xe76f51, 0.55)); book.add(cover);
+      const pages = new T.Mesh(new T.BoxGeometry(0.57, 0.1, 0.42), std(0xfdfbf5, 0.8)); pages.position.x = 0.03; book.add(pages);
+      const pencil = new T.Group();
+      pencil.add(new T.Mesh(new T.CylinderGeometry(0.06, 0.06, 0.7, 6), std(0xf6d55c, 0.5)));
+      const wood = new T.Mesh(new T.ConeGeometry(0.06, 0.16, 6), std(0xe9c99a, 0.7)); wood.position.y = 0.43; pencil.add(wood);
+      const lead = new T.Mesh(new T.ConeGeometry(0.02, 0.05, 6), dark); lead.position.y = 0.5; pencil.add(lead);
+      const band = new T.Mesh(new T.CylinderGeometry(0.063, 0.063, 0.07, 12), std(0xb8c2c4, 0.3)); band.position.y = -0.38; pencil.add(band);
+      const eraser = new T.Mesh(new T.CylinderGeometry(0.06, 0.06, 0.09, 12), pink); eraser.position.y = -0.45; pencil.add(eraser);
+      const atom = new T.Group();
+      atom.add(ball(0.09, std(0xe76f51, 0.4), 16));
+      for (let i = 0; i < 3; i++) { const r = new T.Mesh(new T.TorusGeometry(0.3, 0.018, 8, 48), std(0x5cc0ae, 0.4)); r.rotation.set(i * 1.05, i * 0.6, 0); atom.add(r); }
+      [book, pencil, atom].forEach((o, i) => { o.userData.phase = (i * Math.PI * 2) / 3; orbit.add(o); });
+    }
+
+    function applyTheme() {
+      if (!bodyMat) return;
+      bodyMat.color.set(cssVar("--accent", "#1d6b60"));
+    }
+
+    function resize() {
+      if (!host || !renderer) return;
+      const w = Math.max(1, host.clientWidth), h = Math.max(1, host.clientHeight);
+      renderer.setSize(w, h, false);
+      const f = FRAME[mode], aspect = w / h, k = Math.tan((camera.fov / 2) * Math.PI / 180);
+      const z = Math.max(f.h / k, f.w / (k * aspect));
+      camera.aspect = aspect; camera.position.set(0, f.cy + 0.15, z); camera.lookAt(0, f.cy, 0);
+      camera.updateProjectionMatrix();
+    }
+
+    function frame(now) {
+      requestAnimationFrame(frame);
+      if (!host || document.hidden || !host.isConnected || host.offsetParent === null || host.clientWidth === 0) { last = now; return; }
+      const dt = Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now; clock += dt;
+      const t = clock, still = reduceMotion.matches;
+      let tx = ptr.x * 0.45, ty = ptr.y * 0.25;
+      if (state === "thinking") { tx = 0.35 + Math.sin(t * 0.9) * 0.08; ty = -0.3; }
+      const ease = Math.min(1, dt * 4);
+      look.x += (tx - look.x) * ease; look.y += (ty - look.y) * ease;
+      headGroup.rotation.y = look.x; headGroup.rotation.x = look.y * 0.6;
+      headGroup.rotation.z = state === "thinking" ? Math.sin(t * 1.3) * 0.08 : -look.x * 0.08;
+      if (t > blinkAt) { blinkEnd = t + 0.12; blinkAt = t + 2.5 + Math.random() * 3; }
+      const lid = t < blinkEnd ? 0.12 : 1;
+      for (const p of pupils) { p.position.x = p.userData.base.x + look.x * 0.05; p.position.y = p.userData.base.y - look.y * 0.05; p.scale.y = lid; }
+
+      let y = still ? 0 : Math.sin(t * 1.7) * 0.07, spin = 0, shake = 0;
+      if (reactKind) {
+        const dur = reactKind === "happy" ? 0.9 : 0.6, p = (t - reactStart) / dur;
+        if (p >= 1) reactKind = null;
+        else if (reactKind === "happy") { y += Math.sin(p * Math.PI) * 0.45; spin = still ? 0 : (1 - Math.pow(1 - p, 3)) * Math.PI * 2; }
+        else shake = Math.sin(p * 28) * 0.14 * (1 - p);
+      }
+      root.position.y = y; root.rotation.y = spin; root.rotation.z = shake;
+      shadow.scale.setScalar(1 - y * 0.35); shadow.material.opacity = 0.14 - y * 0.06;
+
+      const talking = state === "talking";
+      mouth.visible = talking; smile.visible = !talking;
+      if (talking) mouth.scale.y = 0.25 + Math.abs(Math.sin(t * 13)) * 0.55 + Math.abs(Math.sin(t * 7.3)) * 0.2;
+      tassel.rotation.z = Math.sin(t * 2.1) * 0.12 - look.x * 0.3 + shake * 2;
+      tassel.rotation.x = Math.sin(t * 1.7) * 0.08;
+
+      dots.visible = state === "thinking";
+      if (dots.visible) dots.children.forEach((d, i) => { const a = t * 3 + i * 2.094; d.position.set(Math.cos(a) * 0.55, 1.72 + Math.sin(t * 4 + i) * 0.06, Math.sin(a) * 0.55); });
+
+      orbit.visible = mode === "hero";
+      if (orbit.visible) orbit.children.forEach((o) => {
+        const a = (still ? 0.6 : t * 0.45) + o.userData.phase;
+        o.position.set(Math.cos(a) * 2.05, 0.15 + Math.sin(a * 1.3 + o.userData.phase) * 0.25, Math.sin(a) * 1.1);
+        o.rotation.set(t * 0.6 + o.userData.phase, t * 0.8, Math.sin(t + o.userData.phase) * 0.4);
+      });
+      renderer.render(scene, camera);
+    }
+
+    function init() {
+      if (initP) return initP;
+      initP = (async () => {
+        await loadScript(THREE_URL);
+        T = window.THREE;
+        renderer = new T.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "low-power" });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        renderer.domElement.setAttribute("aria-hidden", "true");
+        build(); applyTheme();
+        matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => setTimeout(applyTheme, 30));
+        new MutationObserver(() => setTimeout(applyTheme, 30)).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "class", "style"] });
+        window.addEventListener("pointermove", (e) => {
+          if (!host) return;
+          const r = host.getBoundingClientRect();
+          ptr.x = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (innerWidth / 2)));
+          ptr.y = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height / 2)) / (innerHeight / 2)));
+        }, { passive: true });
+        ro = new ResizeObserver(resize);
+        if (!started) { started = true; requestAnimationFrame(frame); }
+      })().catch(() => { initP = null; });
+      return initP;
+    }
+
+    async function mount(newHost, newMode) {
+      await init();
+      if (!renderer || !newHost) return;
+      if (host === newHost && mode === newMode) return;
+      if (host) { host.classList.remove("has3d"); ro.unobserve(host); }
+      host = newHost; mode = newMode;
+      host.appendChild(renderer.domElement); host.classList.add("has3d");
+      ro.observe(host); resize();
+    }
+    return {
+      mount,
+      setState(s) { state = s; },
+      get state() { return state; },
+      react(kind) { reactKind = kind; reactStart = clock; },
+    };
+  })();
+
+  function placeAvatar() {
+    if (!$("#start").hidden) Avatar.mount($("#heroAvatar"), "hero");
+    else if (innerWidth > 900) Avatar.mount($("#sideAvatar"), "side");
+    else Avatar.mount($("#barAvatar"), "bar");
+  }
+  window.addEventListener("resize", () => { clearTimeout(placeAvatar.t); placeAvatar.t = setTimeout(placeAvatar, 150); });
+  function idleAvatar() { Avatar.setState(speaking ? "talking" : "idle"); }
 
   // ---------- capabilities ----------
   async function boot() {
@@ -459,16 +765,16 @@ aside.side {
     });
     use("tts").then((t) => {
       tts = t;
-      if (t) { try { t.onState(({ state }) => { speaking = state !== "idle"; refreshSpeakButtons(); }); } catch (_) {} }
+      if (t) { try { t.onState(({ state }) => { speaking = state !== "idle"; refreshSpeakButtons(); if (!busy) idleAvatar(); }); } catch (_) {} }
       rerenderLog();
     });
     use("dictation").then((d) => {
       dict = d;
       if (!d) return;
-      $("#mic").hidden = false;
-      $("#voiceTip").hidden = false;
+      $("#mic").hidden = false; $("#voiceTip").hidden = false;
       wireDictation();
     });
+    use("downloads").then((d) => { downloads = d; rerenderLog(); });
   }
   function markNoClaude() {
     samplingDead = true;
@@ -482,8 +788,7 @@ aside.side {
     cur = null; store.currentId = null; save();
     $("#start").hidden = false; $("#chat").hidden = true;
     $("#openClaude").hidden = true; $("#newTopic").hidden = true; $("#topicPill").textContent = "";
-    renderRecents();
-    updateGo();
+    renderRecents(); updateGo(); placeAvatar();
   }
   function showChat(session) {
     cur = session; store.currentId = session.id; save();
@@ -491,73 +796,50 @@ aside.side {
     $("#openClaude").hidden = false; $("#newTopic").hidden = false;
     $("#topicPill").textContent = session.topic;
     $("#sideTopic").textContent = session.topic;
-    renderDocInfo();
-    updateClaudeLink();
-    rerenderLog();
-    updateSend();
+    renderDocInfo(); updateClaudeLink(); rerenderLog(); updateSend(); placeAvatar();
     setTimeout(() => $("#msg").focus(), 0);
   }
   function renderDocInfo() {
     const d = $("#sideDoc"); d.textContent = "";
     if (!cur.docName) { d.textContent = "No file. Nawras teaches from what it knows."; return; }
-    const b = el("b", null, cur.docName); d.append(b);
+    d.append(el("b", null, cur.docName));
     const bits = [];
     if (cur.docPages) bits.push(cur.docPages + (cur.docPages === 1 ? " page" : " pages"));
     if (cur.docWords) bits.push(cur.docWords.toLocaleString() + " words");
     if (bits.length) d.append(document.createTextNode(" · " + bits.join(" · ")));
-    if (cur.scanned) {
-      const n = el("p", "note");
-      n.textContent = pageImages[cur.id] ? "Scanned pages: Nawras reads them as pictures while this tab stays open." : "This was a scanned PDF. Start a new topic and add it again so Nawras can see it.";
-      d.append(n);
-    }
+    if (cur.scanned) d.append(el("p", "note", pageImages[cur.id] ? "Scanned pages: Nawras reads them as pictures while this tab stays open." : "This was a scanned PDF. Start a new topic and add it again so Nawras can see it."));
     if (cur.docTruncated) d.append(el("p", "note", "Long file: Nawras reads the first part."));
   }
 
   // ---------- start screen ----------
-  function updateGo() {
-    $("#go").disabled = !($("#topic").value.trim() || (draftDoc && !draftDoc.error && !draftDoc.loading));
-  }
+  function updateGo() { $("#go").disabled = !($("#topic").value.trim() || (draftDoc && !draftDoc.error && !draftDoc.loading)); }
   function renderDocline() {
     const dl = $("#docline"); dl.textContent = ""; dl.className = "docline";
     if (!draftDoc) { dl.hidden = true; $("#drop").hidden = false; updateGo(); return; }
     dl.hidden = false; $("#drop").hidden = true;
     if (draftDoc.error) dl.classList.add("err");
     dl.append(el("span", "name", draftDoc.name));
-    let meta = "";
+    let meta;
     if (draftDoc.loading) meta = draftDoc.progress || "Reading…";
     else if (draftDoc.error) meta = draftDoc.error;
     else {
       const bits = [];
       if (draftDoc.pages) bits.push(draftDoc.pages + (draftDoc.pages === 1 ? " page" : " pages"));
-      if (draftDoc.scanned) bits.push("scanned");
-      else bits.push(draftDoc.words.toLocaleString() + " words");
+      bits.push(draftDoc.scanned ? "scanned" : draftDoc.words.toLocaleString() + " words");
       meta = bits.join(" · ");
     }
     dl.append(el("span", "meta", meta));
-    const x = el("button", "x", "×"); x.type = "button"; x.setAttribute("aria-label", "Remove file");
-    x.onclick = () => { draftDoc = null; $("#file").value = ""; renderDocline(); };
+    const x = button("x", "×", () => { draftDoc = null; $("#file").value = ""; renderDocline(); });
+    x.setAttribute("aria-label", "Remove file");
     dl.append(x);
     updateGo();
   }
 
-  function loadScript(src) {
-    return new Promise((res, rej) => {
-      const s = document.createElement("script"); s.src = src; s.onload = res;
-      s.onerror = () => rej(new Error("Couldn't load the PDF reader."));
-      document.head.appendChild(s);
-    });
-  }
-  let pdfjsP = null;
-  function getPdfjs() {
-    if (!pdfjsP) {
-      pdfjsP = (async () => {
-        await loadScript(PDFJS + "pdf.min.js");
-        await loadScript(PDFJS + "pdf.worker.min.js"); // runs the worker on the page; separate workers are blocked here
-        window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + "pdf.worker.min.js";
-        return window.pdfjsLib;
-      })().catch((e) => { pdfjsP = null; throw e; });
-    }
-    return pdfjsP;
+  async function getPdfjs() {
+    await loadScript(PDFJS + "pdf.min.js");
+    await loadScript(PDFJS + "pdf.worker.min.js"); // runs the worker on the page; separate workers are blocked here
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + "pdf.worker.min.js";
+    return window.pdfjsLib;
   }
 
   async function readFile(file) {
@@ -565,9 +847,8 @@ aside.side {
     draftDoc = doc; renderDocline();
     try {
       const isPdf = /\.pdf$/i.test(file.name) || file.type === "application/pdf";
-      if (!isPdf) {
-        doc.text = (await file.text()).trim();
-      } else {
+      if (!isPdf) doc.text = (await file.text()).trim();
+      else {
         const pdfjs = await getPdfjs();
         const pdf = await pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()), isEvalSupported: false }).promise;
         doc.pages = pdf.numPages;
@@ -575,22 +856,19 @@ aside.side {
         for (let i = 1; i <= pdf.numPages; i++) {
           if (draftDoc !== doc) return;
           doc.progress = `Reading page ${i} of ${pdf.numPages}…`; renderDocline();
-          const page = await pdf.getPage(i);
-          const tc = await page.getTextContent();
-          const t = tc.items.map((it) => (it.str || "") + (it.hasEOL ? "\n" : " ")).join("").replace(/[ \t]+/g, " ").trim();
-          parts.push(`[Page ${i}]\n${t}`);
+          const tc = await (await pdf.getPage(i)).getTextContent();
+          parts.push(`[Page ${i}]\n` + tc.items.map((it) => (it.str || "") + (it.hasEOL ? "\n" : " ")).join("").replace(/[ \t]+/g, " ").trim());
         }
         doc.text = parts.join("\n\n");
         const realChars = doc.text.replace(/\[Page \d+\]/g, "").replace(/\s+/g, "").length;
         if (realChars < 80 * Math.min(pdf.numPages, 3)) {
-          // Little or no text: a scanned worksheet. Send the pages as pictures instead.
           doc.scanned = true; doc.text = "";
           const max = Math.min(pdf.numPages, imageLimits ? imageLimits.maxCount : 0, 6);
           if (!max) throw new Error("This PDF is scanned (no text inside). Type what it's about instead.");
           doc.images = [];
           for (let i = 1; i <= max; i++) {
             doc.progress = `Scanning page ${i} of ${max}…`; renderDocline();
-            doc.images.push(await pageToBlob(await pdf.getPage(i)));
+            doc.images.push(await pageToBlob(await pdf.getPage(i), 1400, "image/jpeg"));
           }
         }
       }
@@ -604,14 +882,17 @@ aside.side {
     }
     if (draftDoc === doc) renderDocline();
   }
-  async function pageToBlob(page) {
+  async function renderPage(page, maxEdge) {
     const base = page.getViewport({ scale: 1 });
-    const scale = Math.min(2.5, 1400 / Math.max(base.width, base.height));
-    const vp = page.getViewport({ scale });
+    const vp = page.getViewport({ scale: Math.min(2.5, maxEdge / Math.max(base.width, base.height)) });
     const c = document.createElement("canvas"); c.width = Math.round(vp.width); c.height = Math.round(vp.height);
-    const ctx = c.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height);
-    await page.render({ canvasContext: ctx, viewport: vp }).promise;
-    return await new Promise((res) => c.toBlob(res, "image/jpeg", 0.85));
+    const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height);
+    await page.render({ canvasContext: g, viewport: vp }).promise;
+    return c;
+  }
+  async function pageToBlob(page, maxEdge, type) {
+    const c = await renderPage(page, maxEdge);
+    return await new Promise((res) => c.toBlob(res, type, 0.85));
   }
 
   function startSession() {
@@ -621,16 +902,13 @@ aside.side {
     if (!topic) return;
     const s = {
       id: "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-      topic: topic.slice(0, 300),
-      createdAt: Date.now(), updatedAt: Date.now(),
+      topic: topic.slice(0, 300), createdAt: Date.now(), updatedAt: Date.now(),
       docName: doc ? doc.name : "", docText: doc ? doc.text.slice(0, MAX_DOC_CHARS) : "",
       docPages: doc ? doc.pages : 0, docWords: doc ? doc.words : 0,
-      docTruncated: !!(doc && doc.truncated), scanned: !!(doc && doc.scanned),
-      turns: [],
+      docTruncated: !!(doc && doc.truncated), scanned: !!(doc && doc.scanned), turns: [],
     };
     if (doc && doc.images) pageImages[s.id] = doc.images;
-    store.sessions.unshift(s);
-    store.sessions = store.sessions.slice(0, 12);
+    store.sessions.unshift(s); store.sessions = store.sessions.slice(0, 12);
     draftDoc = null; $("#file").value = ""; $("#topic").value = ""; renderDocline();
     showChat(s);
     send("Hey Nawras, give me a quick overview of what I'm learning and where we should start.");
@@ -642,19 +920,16 @@ aside.side {
     $("#recentsWrap").hidden = !items.length;
     for (const s of items.slice(0, 6)) {
       const row = el("div", "card recent");
-      const open = el("button", "open"); open.type = "button";
+      const open = button("open", null, () => showChat(s));
       open.append(el("span", "t", s.topic));
       const n = s.turns.filter((t) => t.role === "user").length;
       open.append(el("span", "d", `${s.docName ? s.docName + " · " : ""}${n} question${n === 1 ? "" : "s"} · ${new Date(s.updatedAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}`));
-      open.onclick = () => showChat(s);
-      const del = el("button", "del", "Remove"); del.type = "button";
-      del.onclick = () => {
+      const del = button("del", "Remove", () => {
         if (!del.classList.contains("armed")) { del.classList.add("armed"); del.textContent = "Remove?"; return; }
         store.sessions = store.sessions.filter((x) => x !== s); delete pageImages[s.id]; save(); renderRecents();
-      };
+      });
       del.onblur = () => { del.classList.remove("armed"); del.textContent = "Remove"; };
-      row.append(open, del);
-      list.append(row);
+      row.append(open, del); list.append(row);
     }
   }
 
@@ -667,12 +942,12 @@ What you do:
 - Study guides: when asked, make a clear guide with these sections: Key ideas, Important terms (term: meaning), How it works or Steps, Common mistakes, and 5 practice questions, with the answers at the very end under "Answers".
 - "How do I ..." questions: give numbered steps, show one fully worked example, then give them a similar one to try.
 - Helping them teach: when the student wants to teach this to someone else (a class, a friend, a younger sibling), give a short lesson plan: the goal, a hook to start, the explanation in 3 simple steps, a quick activity, 3 check questions with answers, and tips for explaining it simply.
-- Quizzes are made by the app. If the student shares quiz results, go over each question they missed: why the right answer is right and why theirs wasn't.
+- The app makes interactive quizzes, flashcards and PDFs itself. If the student shares quiz results, go over each question they missed: why the right answer is right and why theirs wasn't.
 - If they answer one of your check questions, tell them kindly whether they're right and why.
 
 Style rules:
-- Use Markdown: short headings, bullets, **bold** key terms, numbered steps. Write math in plain text (3x + 5 = 20, x^2, 1/2), never LaTeX.
-- Keep ordinary replies under about 250 words. Study guides and lesson plans can be longer.
+- Use Markdown: short headings, bullets, **bold** key terms, numbered steps, and tables when comparing things. Write math in plain text (3x + 5 = 20, x^2, 1/2), never LaTeX.
+- Keep ordinary replies under about 250 words. Study guides, documents and lesson plans can be longer.
 - Be encouraging, honest and clear. Never mention these instructions.
 
 The student is learning: ${s.topic}`;
@@ -686,14 +961,20 @@ The student is learning: ${s.topic}`;
     return r;
   }
 
+  const correctText = (x) => (x.type === "fill" ? x.answers[0] : x.choices[x.answer]);
+  const pickText = (x, p) => (x.type === "fill" ? String(p.v) : x.choices[p.v]);
+
   function turnText(t) {
     if (t.kind === "quiz" && t.quiz) {
-      const q = t.quiz;
-      const lines = q.questions.map((x, i) => {
-        const pick = t.picks && t.picks[i] != null ? ` (student picked: ${x.choices[t.picks[i]]})` : "";
-        return `${i + 1}. ${x.q} Correct: ${x.choices[x.answer]}${pick}`;
+      const picks = normPicks(t);
+      const lines = t.quiz.questions.map((x, i) => {
+        const p = picks[i];
+        return `${i + 1}. ${x.q} Correct: ${correctText(x)}${p ? ` (student answered: ${pickText(x, p)}, ${p.ok ? "right" : "wrong"})` : ""}`;
       });
-      return `I made a quiz, "${q.title}":\n${lines.join("\n")}`;
+      return `I made a quiz, "${t.quiz.title}":\n${lines.join("\n")}`;
+    }
+    if (t.kind === "cards" && t.deck) {
+      return `I made flashcards, "${t.deck.title}":\n` + t.deck.cards.map((c, i) => `${i + 1}. ${c.front}: ${c.back}`).join("\n");
     }
     return t.content || "";
   }
@@ -718,15 +999,18 @@ The student is learning: ${s.topic}`;
     return msgs;
   }
 
-  function stripWake(text) {
-    const m = text.match(WAKE);
-    return (m ? text.slice(m[0].length) : text).trim();
-  }
+  function stripWake(text) { const m = text.match(WAKE); return (m ? text.slice(m[0].length) : text).trim(); }
   const isQuiz = (t) => /\b(quiz me|test me|practice test)\b|\b(make|give|create|write|generate|another|new|harder|easier|do)\b[^.?!]*\bquiz/i.test(t);
+  const isCards = (t) => /\bflash ?cards?\b/i.test(t);
+  const wantsPdf = (t) => /\bpdfs?\b/i.test(t);
+  const pdfOfLast = (t) =>
+    /\b(turn|save|export|convert|put|download|get|send|make)\b[^.?!]*?\b(this|that|it|those|these|them)\b[^.?!]*?\b(into|as|to|in)\s+(a\s+)?pdf\b/i.test(t) ||
+    /\b(make|turn)\s+(it|this|that|those|these|them)\s+(into\s+)?(a\s+)?pdf\b/i.test(t) ||
+    /\bpdf\s+(of|version of)\s+(this|that|it|those|these)\b/i.test(t) ||
+    /^(can i (get|have) )?(a |the )?pdf( please| pls)?[.!?]*$/i.test(t);
 
   function errorCopy(e) {
-    const code = e && e.code;
-    switch (code) {
+    switch (e && e.code) {
       case "not_granted": samplingDead = true; return "This page isn't allowed to use Claude, so Nawras can't answer. Reload and choose Allow to turn it on.";
       case "sampling_disabled": samplingDead = true; return "Claude isn't available on this account.";
       case "not_declared": case "capability_disabled": case "capability_removed": samplingDead = true; return "Nawras can't reach Claude in this view. Try opening the page on claude.ai.";
@@ -735,7 +1019,7 @@ The student is learning: ${s.topic}`;
       case "refused": return "Nawras can't help with that one. Try asking it another way.";
       case "prompt_too_large": return "That's too much text at once. Start a new topic with a shorter file.";
       case "empty_completion": return "Nawras didn't come up with anything. Try asking a bit differently.";
-      case "invalid_json": return "The quiz came out garbled. Try asking for it again.";
+      case "invalid_json": return "That came out garbled. Try asking for it again.";
       case "images_unavailable": case "image_rejected": return "Nawras couldn't look at the scanned pages. Type what the file is about instead.";
       default: return "Couldn't reach Claude. Check your connection and try again.";
     }
@@ -752,39 +1036,67 @@ The student is learning: ${s.topic}`;
     await respond(s);
   }
 
+  function lastContentTurn(s) {
+    for (let i = s.turns.length - 2; i >= 0; i--) {
+      const t = s.turns[i];
+      if (t.role !== "assistant" || t.error) continue;
+      if ((t.kind === "quiz" && t.quiz) || (t.kind === "cards" && t.deck) || (t.content && t.kind !== "pdf")) return t;
+      if (t.kind === "pdf" && t.source) return t;
+    }
+    return null;
+  }
+
   async function respond(s) {
     const last = s.turns[s.turns.length - 1];
     const ask = stripWake(last.content) || "Hi!";
+    const pdf = wantsPdf(ask);
+    if (pdf && !isQuiz(ask) && !isCards(ask) && pdfOfLast(ask)) {
+      const prev = lastContentTurn(s);
+      if (prev) return makePdfTurn(s, prev);
+    }
     if (!sample) {
       const t = { role: "assistant", content: "", error: samplingDead ? "Open this page on claude.ai to talk to Nawras." : "Still connecting to Claude. Try again in a moment." };
       s.turns.push(t); save(); appendTurn(t); return;
     }
-    if (isQuiz(ask)) return runQuiz(s, ask);
-    return runChat(s);
+    if (isQuiz(ask)) return runDeck(s, ask, "quiz", pdf);
+    if (isCards(ask)) return runDeck(s, ask, "cards", pdf);
+    return runChat(s, pdf);
+  }
+
+  function makePdfTurn(s, prev) {
+    const source = pdfSourceOf(prev);
+    const label = source.type === "quiz" ? "quiz worksheet" : source.type === "cards" ? "flashcard sheet" : "PDF";
+    const t = { role: "assistant", kind: "pdf", source, content: `Here's that as a ${label}. Download it below.` };
+    s.turns.push(t); s.updatedAt = Date.now(); save();
+    appendTurn(t);
+    Avatar.react("happy");
   }
 
   function imagesFor(s) {
     return s.scanned && pageImages[s.id] && imageLimits ? pageImages[s.id].slice(0, imageLimits.maxCount) : undefined;
   }
 
-  async function runChat(s) {
+  const PDF_NOTE = "(App note: the student wants this as a downloadable PDF. Write it as a complete, well-organized document that starts with a single '# Title' line. Use headings, lists and tables where they help. Don't mention PDFs, files or downloading in the text; the app adds the download button.)";
+
+  async function runChat(s, pdf) {
     const t = { role: "assistant", content: "" };
+    if (pdf) t.pdf = true;
     s.turns.push(t);
     const view = appendTurn(t, true);
-    setBusy(true);
+    setBusy(true); Avatar.setState("thinking");
     ctl = new AbortController();
     let raf = 0, latest = "";
     try {
       const opts = {
         cache: false, signal: ctl.signal,
         onText: ({ text }) => {
-          latest = text;
+          latest = text; Avatar.setState("talking");
           if (!raf) raf = requestAnimationFrame(() => { raf = 0; view.setText(latest); });
         },
       };
       const imgs = imagesFor(s);
       if (imgs && imgs.length) opts.images = imgs;
-      const res = await sample(buildMessages(s), opts);
+      const res = await sample(buildMessages(s, pdf ? PDF_NOTE : null), opts);
       cancelAnimationFrame(raf); raf = 0;
       t.content = res.text;
       if (res.truncated) t.content += "\n\n*(I ran out of room there. Ask me to keep going.)*";
@@ -793,43 +1105,61 @@ The student is learning: ${s.topic}`;
       t.content = (e && e.code !== "refused" && e.text) || "";
       if (!e || e.code !== "cancelled") t.error = errorCopy(e);
       else if (!t.content) { s.turns.pop(); view.remove(); }
+      if (t.error) Avatar.react("oops");
     } finally {
-      ctl = null; setBusy(false);
+      ctl = null; setBusy(false); idleAvatar();
       s.updatedAt = Date.now(); save();
       if (s.turns.includes(t)) view.finish();
     }
   }
 
-  async function runQuiz(s, ask) {
-    const t = { role: "assistant", kind: "quiz", content: "", quiz: null, picks: [] };
-    s.turns.push(t);
-    const view = appendTurn(t, true);
-    setBusy(true);
-    ctl = new AbortController();
-    const n = (ask.match(/\b(\d{1,2})\b/) || [])[1];
-    const count = Math.max(3, Math.min(15, n ? parseInt(n, 10) : 5));
-    const instruction = `The student asked: "${ask}"
+  function quizInstruction(ask, s, count) {
+    return `The student asked: "${ask}"
 
-Write a multiple-choice quiz about what they're learning${s.docText || s.scanned ? ", based on their material" : ""}. Use ${count} questions unless they clearly asked for a different number (at most 15). If they said "like that" or similar, match the style of what we were just discussing. Mix easier and harder questions. Each question has exactly 4 choices and exactly one correct answer. Vary which position the correct answer is in.
+Write a quiz about what they're learning${s.docText || s.scanned ? ", based on their material" : ""}. Use ${count} questions unless they clearly asked for a different number (at most 15). Use mostly multiple choice, plus a couple of true/false and fill-in-the-blank questions, unless they asked for one kind. If they said "like that" or similar, match what we were just discussing. Mix easier and harder questions, and vary the position of the correct answer.
 
 Reply with only JSON in this exact shape, no other text:
-{"title": "short quiz title", "questions": [{"q": "question text", "choices": ["A", "B", "C", "D"], "answer": 0, "why": "one sentence explaining the correct answer"}]}
-"answer" is the 0-based index of the correct choice. Write math in plain text, not LaTeX.`;
+{"title": "short quiz title", "questions": [
+  {"type": "mc", "q": "question", "choices": ["A", "B", "C", "D"], "answer": 0, "why": "one sentence explaining the answer"},
+  {"type": "tf", "q": "a statement that is either true or false", "answer": true, "why": "one sentence"},
+  {"type": "fill", "q": "a sentence with ____ where the missing word goes", "answer": "missing word", "accept": ["other accepted spellings"], "why": "one sentence"}
+]}
+For "mc", "answer" is the 0-based index of the correct choice and there are exactly 4 choices. For "fill", the answer is 1 to 3 words. Write math in plain text, not LaTeX.`;
+  }
+  function cardsInstruction(ask, s, count) {
+    return `The student asked: "${ask}"
+
+Make flashcards about what they're learning${s.docText || s.scanned ? ", based on their material" : ""}. Use ${count} cards unless they clearly asked for a different number (at most 30). The front is a short term, question or prompt (a few words). The back is the meaning or answer in 1 to 2 clear sentences. Cover the most important ideas first.
+
+Reply with only JSON in this exact shape, no other text:
+{"title": "short deck title", "cards": [{"front": "term or question", "back": "meaning or answer"}]}
+Write math in plain text, not LaTeX.`;
+  }
+
+  async function runDeck(s, ask, kind, pdf) {
+    const t = { role: "assistant", kind, content: "" };
+    if (pdf) t.pdf = true;
+    s.turns.push(t);
+    const view = appendTurn(t, true, false, kind === "quiz" ? "Shuffling quiz cards…" : "Making flashcards…");
+    setBusy(true); Avatar.setState("thinking");
+    ctl = new AbortController();
+    const n = (ask.match(/\b(\d{1,2})\b/) || [])[1];
     try {
-      const msgs = buildMessages(s, instruction);
+      let instruction;
+      if (kind === "quiz") instruction = quizInstruction(ask, s, Math.max(3, Math.min(15, n ? +n : 5)));
+      else instruction = cardsInstruction(ask, s, Math.max(4, Math.min(30, n ? +n : 10)));
       const opts = { cache: false, signal: ctl.signal };
       const imgs = imagesFor(s);
       if (imgs && imgs.length) opts.images = imgs;
-      const data = await sample.json(msgs, opts);
-      const quiz = cleanQuiz(data);
-      if (!quiz) throw { code: "invalid_json" };
-      t.quiz = quiz;
-      t.content = "";
+      const data = await sample.json(buildMessages(s, instruction), opts);
+      if (kind === "quiz") { t.quiz = cleanQuiz(data); if (!t.quiz) throw { code: "invalid_json" }; }
+      else { t.deck = cleanDeck(data); if (!t.deck) throw { code: "invalid_json" }; }
+      Avatar.react("happy");
     } catch (e) {
       if (e && e.code === "cancelled") { s.turns.pop(); view.remove(); }
-      else { t.kind = undefined; t.error = errorCopy(e); }
+      else { t.kind = undefined; t.pdf = undefined; t.error = errorCopy(e); Avatar.react("oops"); }
     } finally {
-      ctl = null; setBusy(false);
+      ctl = null; setBusy(false); idleAvatar();
       s.updatedAt = Date.now(); save();
       if (s.turns.includes(t)) view.finish();
     }
@@ -838,32 +1168,371 @@ Reply with only JSON in this exact shape, no other text:
   function cleanQuiz(d) {
     if (!d || !Array.isArray(d.questions)) return null;
     const qs = d.questions.map((x) => {
-      if (!x || typeof x.q !== "string" || !Array.isArray(x.choices)) return null;
+      if (!x || typeof x.q !== "string" || !x.q.trim()) return null;
+      const why = typeof x.why === "string" ? x.why : "";
+      if (x.type === "tf" || typeof x.answer === "boolean") {
+        let a = x.answer; if (typeof a === "string") a = /^t/i.test(a.trim());
+        if (typeof a !== "boolean") return null;
+        return { type: "tf", q: x.q, choices: ["True", "False"], answer: a ? 0 : 1, why };
+      }
+      if (x.type === "fill" || (!Array.isArray(x.choices) && typeof x.answer === "string")) {
+        const answers = [x.answer, ...(Array.isArray(x.accept) ? x.accept : [])].map((v) => String(v == null ? "" : v).trim()).filter(Boolean);
+        return answers.length ? { type: "fill", q: x.q, answers, why } : null;
+      }
+      if (!Array.isArray(x.choices)) return null;
       const choices = x.choices.map((c) => String(c)).filter((c) => c.trim()).slice(0, 6);
       const answer = Number(x.answer);
       if (choices.length < 2 || !Number.isInteger(answer) || answer < 0 || answer >= choices.length) return null;
-      return { q: x.q, choices, answer, why: typeof x.why === "string" ? x.why : "" };
+      return { type: "mc", q: x.q, choices, answer, why };
     }).filter(Boolean);
     if (!qs.length) return null;
     return { title: typeof d.title === "string" && d.title.trim() ? d.title.trim() : "Quiz", questions: qs };
   }
+  function cleanDeck(d) {
+    if (!d || !Array.isArray(d.cards)) return null;
+    const cards = d.cards.map((c) => c && typeof c.front === "string" && typeof c.back === "string" && c.front.trim() && c.back.trim() ? { front: c.front.trim(), back: c.back.trim() } : null).filter(Boolean).slice(0, 30);
+    if (!cards.length) return null;
+    return { title: typeof d.title === "string" && d.title.trim() ? d.title.trim() : "Flashcards", cards };
+  }
+  // Older saved quizzes stored a bare choice index per question.
+  function normPicks(t) {
+    const qs = t.quiz.questions;
+    return qs.map((x, i) => {
+      const p = t.picks && t.picks[i];
+      if (p == null) return null;
+      if (typeof p === "number") return { v: p, ok: p === x.answer };
+      return p;
+    });
+  }
 
-  // ---------- rendering ----------
+  // ---------- fill-in answer checking ----------
+  const norm = (s) => String(s).toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9.\/^+= -]/g, " ").replace(/\b(the|a|an)\b/g, " ").replace(/\s+/g, " ").trim();
+  function lev(a, b) {
+    const m = a.length, n = b.length; if (!m) return n; if (!n) return m;
+    let prev = Array.from({ length: n + 1 }, (_, j) => j);
+    for (let i = 1; i <= m; i++) {
+      const row = [i];
+      for (let j = 1; j <= n; j++) row[j] = Math.min(prev[j] + 1, row[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      prev = row;
+    }
+    return prev[n];
+  }
+  function fillOk(x, v) {
+    const n = norm(v); if (!n) return false;
+    return x.answers.some((a) => { const m = norm(a); return m === n || (m.length > 4 && lev(m, n) <= 1) || (m.length > 8 && lev(m, n) <= 2); });
+  }
+
+  // =====================================================================
+  // PDF maker (jsPDF)
+  // =====================================================================
+  function pdfSourceOf(t) {
+    if (t.kind === "pdf" && t.source) return t.source;
+    if (t.kind === "quiz" && t.quiz) return { type: "quiz", quiz: t.quiz };
+    if (t.kind === "cards" && t.deck) return { type: "cards", deck: t.deck };
+    return { type: "md", md: t.content || "" };
+  }
+  const PDF_MAP = { "→": "->", "←": "<-", "↔": "<->", "⇒": "=>", "≤": "<=", "≥": ">=", "≠": "!=", "≈": "~", "−": "-", "√": "sqrt", "π": "pi", "∞": "infinity", "Δ": "Delta", "θ": "theta", "α": "alpha", "β": "beta", "γ": "gamma", "λ": "lambda", "μ": "mu", "Ω": "Omega", "✓": "v", "✔": "v", "✅": "", "✗": "x", "✘": "x", "❌": "", "⁰": "^0", "⁴": "^4", "⁵": "^5", "⁶": "^6", "⁷": "^7", "⁸": "^8", "⁹": "^9", "ⁿ": "^n", "₀": "0", "₁": "1", "₂": "2", "₃": "3", "₄": "4", "₅": "5", "₆": "6", "₇": "7", "₈": "8", "₉": "9", " ": " ", "​": "", "−": "-", "‑": "-", "‐": "-", "→": "->" };
+  const WINANSI = "€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ";
+  function pdfSafe(s) {
+    return String(s).replace(/ /g, " ").replace(/[^\x00-\xff]/gu, (ch) => (ch in PDF_MAP ? PDF_MAP[ch] : WINANSI.includes(ch) ? ch : /\p{Extended_Pictographic}|️/u.test(ch) ? "" : "?"));
+  }
+  const decode = (s) => String(s).replace(/&(amp|lt|gt|quot|#39);/g, (_, e) => ({ amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" })[e]);
+  const slug = (s) => (String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "nawras");
+
+  function inlineRuns(tokens, st = {}) {
+    const out = [];
+    for (const t of tokens || []) {
+      switch (t.type) {
+        case "strong": out.push(...inlineRuns(t.tokens, { ...st, b: true })); break;
+        case "em": out.push(...inlineRuns(t.tokens, { ...st, i: true })); break;
+        case "codespan": out.push({ ...st, m: true, text: decode(t.text) }); break;
+        case "br": out.push({ br: true }); break;
+        case "link": case "del": out.push(...inlineRuns(t.tokens, st)); break;
+        case "text": if (t.tokens && t.tokens.length) out.push(...inlineRuns(t.tokens, st)); else out.push({ ...st, text: decode(t.text) }); break;
+        case "html": out.push({ ...st, text: decode(t.text.replace(/<[^>]+>/g, "")) }); break;
+        default: if (t.text) out.push({ ...st, text: decode(t.text) });
+      }
+    }
+    return out;
+  }
+
+  function makeWriter(jsPDF, meta) {
+    const doc = new jsPDF({ unit: "pt", format: "letter", compress: true });
+    const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M = 56;
+    const C = { ink: [20, 35, 42], muted: [86, 103, 110], accent: [29, 107, 96], line: [212, 222, 220], soft: [232, 238, 236], hi: [246, 213, 92], good: [31, 122, 70] };
+    let y = M;
+    const fontOf = (r) => (r.m ? ["courier", "normal"] : ["helvetica", r.b && r.i ? "bolditalic" : r.b ? "bold" : r.i ? "italic" : "normal"]);
+    const w = {
+      doc, W, H, M, C,
+      get y() { return y; }, set y(v) { y = v; },
+      ensure(h) { if (y + h > H - M - 10) { doc.addPage(); y = M; } },
+      gap(h) { y += h; },
+      layout(runs, size, width) {
+        const lines = []; let line = [], lw = 0;
+        const flush = () => { while (line.length && line[line.length - 1].sp) lw -= line.pop().w; lines.push(line); line = []; lw = 0; };
+        for (const r of runs) {
+          if (r.br) { flush(); continue; }
+          const [f, s] = fontOf(r), sz = r.m ? size * 0.92 : size;
+          doc.setFont(f, s); doc.setFontSize(sz);
+          for (const part of pdfSafe(r.text).split(/(\s+)/)) {
+            if (!part) continue;
+            if (/^\s+$/.test(part)) {
+              if (/\n/.test(part) && r.pre) { flush(); continue; }
+              if (line.length) { const sw = doc.getTextWidth(" "); line.push({ f, s, sz, text: " ", w: sw, sp: true, col: r.col }); lw += sw; }
+              continue;
+            }
+            let word = part, tw = doc.getTextWidth(word);
+            if (lw + tw > width && line.length) flush();
+            while (tw > width) { // hard-break very long words
+              let k = word.length; while (k > 1 && doc.getTextWidth(word.slice(0, k)) > width) k--;
+              line.push({ f, s, sz, text: word.slice(0, k), w: doc.getTextWidth(word.slice(0, k)), col: r.col }); flush();
+              word = word.slice(k); tw = doc.getTextWidth(word);
+            }
+            if (word) { line.push({ f, s, sz, text: word, w: tw, col: r.col }); lw += tw; }
+          }
+        }
+        if (line.length) flush();
+        return lines;
+      },
+      // draws wrapped runs; returns nothing, advances y
+      para(runs, o = {}) {
+        const size = o.size || 11, lh = size * (o.lh || 1.45), x = o.x != null ? o.x : M;
+        const width = (o.width != null ? o.width : W - M - x);
+        const lines = w.layout(runs, size, width);
+        lines.forEach((line, i) => {
+          w.ensure(lh);
+          if (o.bar) { doc.setFillColor(...C.hi); doc.rect(x - 12, y, 3, lh, "F"); }
+          if (o.bg) { doc.setFillColor(...o.bg); doc.rect(x - 8, y - 1, width + 16, lh + 2, "F"); }
+          if (i === 0 && o.marker) { doc.setFont("helvetica", "bold"); doc.setFontSize(size); doc.setTextColor(...C.accent); doc.text(pdfSafe(o.marker), x - (o.markerW || 16), y + size * 0.95); }
+          let cx = x;
+          for (const seg of line) {
+            doc.setFont(seg.f, seg.s); doc.setFontSize(seg.sz); doc.setTextColor(...(seg.col || o.col || C.ink));
+            doc.text(seg.text, cx, y + size * 0.95); cx += seg.w;
+          }
+          y += lh;
+        });
+      },
+      titleBlock(title, sub) {
+        doc.setFont("helvetica", "bold"); doc.setFontSize(8.5); doc.setTextColor(...C.accent);
+        doc.text("NAWRAS  ·  STUDY SHEET", M, y + 8, { charSpace: 1 });
+        y += 18;
+        w.para([{ text: title, b: true }], { size: 22, lh: 1.2 });
+        if (sub) { y += 2; w.para([{ text: sub }], { size: 10, col: C.muted }); }
+        y += 8; doc.setFillColor(...C.hi); doc.rect(M, y, 46, 4, "F"); y += 22;
+      },
+      finish() {
+        const n = doc.internal.getNumberOfPages();
+        for (let p = 1; p <= n; p++) {
+          doc.setPage(p);
+          doc.setDrawColor(...C.line); doc.setLineWidth(0.6); doc.line(M, H - 40, W - M, H - 40);
+          doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); doc.setTextColor(...C.muted);
+          doc.text(pdfSafe(`Made with Nawras · ${meta.topic}`).slice(0, 90), M, H - 26);
+          doc.text(`${p} / ${n}`, W - M, H - 26, { align: "right" });
+        }
+        return n;
+      },
+    };
+    return w;
+  }
+
+  function mdBlocks(w, tokens, indent = 0) {
+    const { doc, M, W, C } = w;
+    const x = M + indent;
+    for (const t of tokens) {
+      switch (t.type) {
+        case "heading": {
+          const size = t.depth === 1 ? 18 : t.depth === 2 ? 14.5 : 12.5;
+          w.gap(t.depth <= 2 ? 12 : 6); w.ensure(size * 3);
+          w.para(inlineRuns(t.tokens).map((r) => ({ ...r, b: true })), { size, lh: 1.25, x, col: t.depth <= 2 ? C.accent : C.ink });
+          w.gap(4); break;
+        }
+        case "paragraph": w.para(inlineRuns(t.tokens), { x }); w.gap(6); break;
+        case "text": w.para(inlineRuns(t.tokens && t.tokens.length ? t.tokens : [{ type: "text", text: t.text }]), { x }); w.gap(3); break;
+        case "list": {
+          t.items.forEach((item, i) => {
+            const marker = item.task ? (item.checked ? "[x]" : "[ ]") : t.ordered ? `${(Number(t.start) || 1) + i}.` : "•";
+            let first = true;
+            for (const sub of item.tokens) {
+              if (sub.type === "text" || sub.type === "paragraph") {
+                w.para(inlineRuns(sub.tokens && sub.tokens.length ? sub.tokens : [{ type: "text", text: sub.text }]), { x: x + 20, marker: first ? marker : null, markerW: 18 });
+                first = false;
+              } else mdBlocks(w, [sub], indent + 20);
+            }
+            w.gap(3);
+          });
+          w.gap(4); break;
+        }
+        case "blockquote": {
+          const inner = []; for (const b of t.tokens) { if (b.type === "paragraph" || b.type === "text") inner.push(...inlineRuns(b.tokens), { br: true }); }
+          w.para(inner.map((r) => (r.br ? r : { ...r, i: true })), { x: x + 14, bar: true, col: C.muted }); w.gap(8); break;
+        }
+        case "code": {
+          w.gap(2);
+          for (const line of t.text.split("\n")) w.para([{ text: line || " ", m: true }], { x: x + 8, size: 9.5, lh: 1.4, bg: C.soft });
+          w.gap(10); break;
+        }
+        case "table": {
+          const cols = t.header.length, width = W - M - x, cw = width / cols, size = 9.5, lh = size * 1.4, pad = 6;
+          const row = (cells, head) => {
+            const laid = cells.map((c) => w.layout(inlineRuns(c.tokens).map((r) => (head ? { ...r, b: true } : r)), size, cw - pad * 2));
+            const h = Math.max(...laid.map((l) => l.length)) * lh + pad * 2;
+            w.ensure(h);
+            laid.forEach((lines, ci) => {
+              const cx = x + ci * cw;
+              if (head) { doc.setFillColor(...C.soft); doc.rect(cx, w.y, cw, h, "F"); }
+              doc.setDrawColor(...C.line); doc.setLineWidth(0.6); doc.rect(cx, w.y, cw, h);
+              lines.forEach((line, li) => {
+                let tx = cx + pad;
+                for (const seg of line) { doc.setFont(seg.f, seg.s); doc.setFontSize(seg.sz); doc.setTextColor(...C.ink); doc.text(seg.text, tx, w.y + pad + li * lh + size * 0.95); tx += seg.w; }
+              });
+            });
+            w.y += h;
+          };
+          w.gap(2); row(t.header, true); t.rows.forEach((r) => row(r, false)); w.gap(12); break;
+        }
+        case "hr": w.ensure(16); w.gap(6); doc.setDrawColor(...C.line); doc.line(x, w.y, W - M, w.y); w.gap(10); break;
+        case "space": w.gap(2); break;
+        default: if (t.text) { w.para([{ text: decode(t.text) }], { x }); w.gap(6); }
+      }
+    }
+  }
+
+  let jspdfP = null;
+  function getJsPDF() {
+    if (!jspdfP) jspdfP = loadScript(JSPDF_URL).then(() => window.jspdf.jsPDF).catch((e) => { jspdfP = null; throw e; });
+    return jspdfP;
+  }
+
+  const pdfCache = new WeakMap();
+  async function buildPdf(t) {
+    if (pdfCache.has(t)) return pdfCache.get(t);
+    const p = (async () => {
+      const jsPDF = await getJsPDF();
+      const src = pdfSourceOf(t);
+      const topic = cur ? cur.topic : "Studying";
+      const date = new Date().toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" });
+      let title;
+      const w = makeWriter(jsPDF, { topic });
+      if (src.type === "quiz") {
+        const q = src.quiz; title = q.title;
+        w.titleBlock(title, `${q.questions.length} questions · ${topic}`);
+        w.para([{ text: "Name: ______________________________      Date: ______________" }], { size: 10.5, col: w.C.muted }); w.gap(14);
+        const L = "ABCDEF";
+        q.questions.forEach((x, i) => {
+          w.ensure(80);
+          w.para([{ text: x.q, b: true }], { x: w.M + 22, marker: `${i + 1}.`, markerW: 22, size: 11.5 }); w.gap(4);
+          if (x.type === "fill") { w.para([{ text: "Answer: ________________________________" }], { x: w.M + 22, col: w.C.muted }); }
+          else if (x.type === "tf") { w.para([{ text: "O  True          O  False" }], { x: w.M + 22 }); }
+          else x.choices.forEach((c, j) => w.para([{ text: c }], { x: w.M + 50, marker: `O ${L[j]}.`, markerW: 28 }));
+          w.gap(12);
+        });
+        w.doc.addPage(); w.y = w.M;
+        w.para([{ text: "Answer key", b: true }], { size: 16, col: w.C.accent }); w.gap(10);
+        q.questions.forEach((x, i) => {
+          const ans = x.type === "mc" ? `${L[x.answer]}. ${x.choices[x.answer]}` : correctText(x);
+          w.para([{ text: ans, b: true }, ...(x.why ? [{ text: " — " + x.why }] : [])], { x: w.M + 22, marker: `${i + 1}.`, markerW: 22 }); w.gap(6);
+        });
+      } else if (src.type === "cards") {
+        const d = src.deck; title = d.title;
+        w.titleBlock(title, `${d.cards.length} flashcards · cut along the outside, fold on the dashed line`);
+        const { doc, M, W, C } = w;
+        const width = W - M * 2, half = width / 2, pad = 12, size = 10.5, lh = size * 1.4;
+        d.cards.forEach((c) => {
+          const fl = w.layout([{ text: c.front, b: true }], 12, half - pad * 2);
+          const bl = w.layout([{ text: c.back }], size, half - pad * 2);
+          const h = Math.max(fl.length * 12 * 1.35, bl.length * lh, 30) + pad * 2;
+          w.ensure(h + 10);
+          const y0 = w.y;
+          doc.setDrawColor(...C.line); doc.setLineWidth(0.8); doc.roundedRect(M, y0, width, h, 6, 6);
+          doc.setLineDashPattern([3, 3], 0); doc.line(M + half, y0 + 4, M + half, y0 + h - 4); doc.setLineDashPattern([], 0);
+          const drawLines = (lines, x0, sz, step, color) => lines.forEach((line, li) => { let tx = x0; for (const s of line) { doc.setFont(s.f, s.s); doc.setFontSize(s.sz); doc.setTextColor(...color); doc.text(s.text, tx, y0 + pad + li * step + sz * 0.95); tx += s.w; } });
+          drawLines(fl, M + pad, 12, 12 * 1.35, C.accent);
+          drawLines(bl, M + half + pad, size, lh, C.ink);
+          w.y = y0 + h + 10;
+        });
+      } else {
+        const tokens = window.marked ? window.marked.lexer(src.md || "") : [{ type: "paragraph", tokens: [{ type: "text", text: src.md }] }];
+        const firstH = tokens.findIndex((x) => x.type === "heading");
+        if (firstH > -1 && tokens.slice(0, firstH).every((x) => x.type === "space")) {
+          title = inlineRuns(tokens[firstH].tokens).map((r) => r.text || "").join("");
+          tokens.splice(0, firstH + 1);
+        } else title = topic;
+        w.titleBlock(title, `${topic} · ${date}`);
+        mdBlocks(w, tokens);
+      }
+      const pages = w.finish();
+      const blob = w.doc.output("blob");
+      return { blob, pages, title, filename: slug(title) + ".pdf" };
+    })();
+    pdfCache.set(t, p);
+    p.catch(() => pdfCache.delete(t));
+    return p;
+  }
+
+  async function saveFile(info) {
+    if (!downloads) { toast("Downloads only work when this page is open on claude.ai."); return; }
+    try {
+      await downloads.save({ filename: info.filename, data: info.blob });
+      toast("Saved " + info.filename);
+    } catch (e) {
+      const c = e && e.code;
+      if (c === "declined") return;
+      if (c === "rate_limited") toast("A save is already waiting for you. Finish that one first.");
+      else if (["unavailable", "not_granted", "capability_disabled", "capability_removed", "extension_not_enabled"].includes(c)) toast("Downloads aren't available in this view.");
+      else toast("Couldn't save the PDF. Try again.");
+    }
+  }
+
+  async function savePdfFor(t, btn) {
+    const label = btn && btn.querySelector("span");
+    const old = label && label.textContent;
+    if (label) label.textContent = "Making PDF…";
+    try { await saveFile(await buildPdf(t)); }
+    catch (_) { toast("Couldn't make the PDF. Check your connection and try again."); }
+    finally { if (label) label.textContent = old; }
+  }
+
+  function pdfCard(t) {
+    const card = el("div", "card pdfcard");
+    const paper = el("div", "paper3d");
+    const s3 = el("div", "sheet s3"), s2 = el("div", "sheet s2"), s1 = el("div", "sheet s1");
+    const skel = el("div", "skel"); for (let i = 0; i < 9; i++) { const b = el("i"); b.style.width = (55 + ((i * 37) % 45)) + "%"; skel.append(b); }
+    s1.append(skel); s2.hidden = s3.hidden = true;
+    paper.append(s3, s2, s1, el("span", "badge", "PDF"));
+    const info = el("div", "pdfinfo");
+    const title = el("div", "t", "Making your PDF…"), meta = el("div", "m", "Letter size");
+    const dl = el("button", "btn primary"); dl.type = "button"; dl.disabled = true;
+    dl.innerHTML = PDF_SVG + "<span>Download PDF</span>";
+    info.append(title, meta, dl);
+    card.append(paper, info);
+    buildPdf(t).then(async (pdf) => {
+      title.textContent = pdf.title;
+      meta.textContent = `Letter size · ${pdf.pages} page${pdf.pages === 1 ? "" : "s"}`;
+      s2.hidden = pdf.pages < 2; s3.hidden = pdf.pages < 3;
+      dl.disabled = false; dl.onclick = () => saveFile(pdf);
+      if (!downloads) meta.textContent += " · open on claude.ai to download";
+      try {
+        const pdfjs = await getPdfjs();
+        const doc = await pdfjs.getDocument({ data: new Uint8Array(await pdf.blob.arrayBuffer()), isEvalSupported: false }).promise;
+        const c = await renderPage(await doc.getPage(1), 300);
+        s1.textContent = ""; s1.append(c);
+      } catch (_) { /* keep the sketch preview */ }
+    }).catch(() => { title.textContent = "Couldn't make the PDF"; meta.textContent = "Check your connection, then ask again."; });
+    return card;
+  }
+
+  // =====================================================================
+  // Rendering
+  // =====================================================================
   let speaking = false, speakingTurn = null;
 
   function mdToHtml(text) {
-    try {
-      if (window.marked && window.DOMPurify) {
-        return window.DOMPurify.sanitize(window.marked.parse(text, { gfm: true, breaks: false }));
-      }
-    } catch (_) {}
+    try { if (window.marked && window.DOMPurify) return window.DOMPurify.sanitize(window.marked.parse(text, { gfm: true, breaks: false })); } catch (_) {}
     const esc = text.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
     return esc.split(/\n{2,}/).map((p) => `<p>${p.replace(/\n/g, "<br>")}</p>`).join("");
   }
   if (window.DOMPurify) {
-    window.DOMPurify.addHook("afterSanitizeAttributes", (node) => {
-      if (node.tagName === "A") { node.setAttribute("target", "_blank"); node.setAttribute("rel", "noopener"); }
-    });
+    window.DOMPurify.addHook("afterSanitizeAttributes", (node) => { if (node.tagName === "A") { node.setAttribute("target", "_blank"); node.setAttribute("rel", "noopener"); } });
   }
 
   function nearBottom() { const l = $("#log"); return l.scrollHeight - l.scrollTop - l.clientHeight < 120; }
@@ -879,15 +1548,12 @@ Reply with only JSON in this exact shape, no other text:
   function userBubble(text) {
     const b = el("div", "bubble");
     const m = text.match(WAKE);
-    if (m) {
-      const w = el("span", "wake", m[0].trim().replace(/[,.!:?-]+$/, ""));
-      b.append(w, document.createTextNode(" " + text.slice(m[0].length).trim()));
-    } else b.textContent = text;
+    if (m) b.append(el("span", "wake", m[0].trim().replace(/[,.!:?-]+$/, "")), document.createTextNode(" " + text.slice(m[0].length).trim()));
+    else b.textContent = text;
     return b;
   }
 
-  // Returns a small controller for a bot message: setText, finish, remove.
-  function appendTurn(t, live, quiet) {
+  function appendTurn(t, live, quiet, liveLabel) {
     const li = $("#logInner");
     const stick = quiet || nearBottom();
     if (t.role === "user") {
@@ -903,135 +1569,263 @@ Reply with only JSON in this exact shape, no other text:
     body.append(content);
     m.append(mark, body); li.append(m);
 
-    const thinking = () => { content.innerHTML = '<span class="thinking" aria-label="Nawras is thinking"><i></i><i></i><i></i></span>'; };
     const api = {
       setText(text) { const s = nearBottom(); content.innerHTML = mdToHtml(text); if (s) toBottom(); },
       remove() { m.remove(); },
       finish() {
         content.textContent = "";
+        body.querySelectorAll(".tools, .errnote, .pdfcard").forEach((n) => n.remove());
         if (t.kind === "quiz" && t.quiz) { content.className = ""; content.append(renderQuiz(t)); }
+        else if (t.kind === "cards" && t.deck) { content.className = ""; content.append(renderCards(t)); }
         else if (t.content) { content.className = "md"; content.innerHTML = mdToHtml(t.content); }
-        body.querySelectorAll(".tools, .errnote").forEach((n) => n.remove());
-        if (t.content && !t.error) body.append(toolsFor(t, content));
+        if ((t.pdf || t.kind === "pdf") && !t.error && (t.kind !== "quiz" || t.quiz) && (t.kind !== "cards" || t.deck)) body.append(pdfCard(t));
+        if (t.content && !t.error && t.kind !== "pdf") body.append(toolsFor(t, content));
         if (t.error) {
           const er = el("div", "errnote"); er.append(el("span", null, t.error));
           if (!samplingDead && cur && cur.turns[cur.turns.length - 1] === t) {
-            const again = el("button", "btn", "Try again"); again.type = "button";
-            again.onclick = () => { if (busy) return; cur.turns.pop(); m.remove(); save(); respond(cur); };
-            er.append(again);
+            er.append(button("btn", "Try again", () => { if (busy) return; cur.turns.pop(); m.remove(); save(); respond(cur); }));
           }
           body.append(er);
         }
         if (stick) toBottom();
       },
     };
-    if (live) thinking(); else api.finish();
+    if (live) content.innerHTML = `<span class="thinking" aria-label="Nawras is thinking"><i></i><i></i><i></i>${liveLabel ? `<span>${liveLabel}</span>` : ""}</span>`;
+    else api.finish();
     if (stick) toBottom();
     return api;
   }
 
   function toolsFor(t, content) {
     const row = el("div", "tools");
-    const copy = el("button", "tool"); copy.type = "button"; copy.innerHTML = COPY_SVG + "<span>Copy</span>";
+    const copy = button("tool"); copy.innerHTML = COPY_SVG + "<span>Copy</span>";
     copy.onclick = async () => {
       try { await navigator.clipboard.writeText(t.content); copy.lastChild.textContent = "Copied"; }
       catch (_) { const r = document.createRange(); r.selectNodeContents(content); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); copy.lastChild.textContent = "Selected"; }
       setTimeout(() => { copy.lastChild.textContent = "Copy"; }, 1600);
     };
     row.append(copy);
+    if (!t.pdf) { const pb = button("tool"); pb.innerHTML = PDF_SVG + "<span>Save as PDF</span>"; pb.onclick = () => savePdfFor(t, pb); row.append(pb); }
     if (tts) {
-      const sp = el("button", "tool speak"); sp.type = "button"; sp._turn = t;
-      sp.innerHTML = SPEAK_SVG + "<span>Listen</span>";
-      sp.onclick = () => speak(t, content);
-      row.append(sp);
+      const sp = button("tool speak"); sp._turn = t; sp.innerHTML = SPEAK_SVG + "<span>Listen</span>";
+      sp.onclick = () => speak(t, content); row.append(sp);
     }
     return row;
   }
   function refreshSpeakButtons() {
-    document.querySelectorAll(".tool.speak").forEach((b) => {
-      b.lastChild.textContent = speaking && speakingTurn === b._turn ? "Stop" : "Listen";
-    });
+    document.querySelectorAll(".tool.speak").forEach((b) => { b.lastChild.textContent = speaking && speakingTurn === b._turn ? "Stop" : "Listen"; });
   }
   function speak(t, content) {
     if (!tts) return;
     if (speaking && speakingTurn === t) { tts.stop().catch(() => {}); return; }
     const lines = [];
-    const paras = content.innerText.split(/\n{2,}/).map((p) => p.replace(/\s+/g, " ").trim()).filter(Boolean);
-    for (const p of paras) {
+    for (const p of content.innerText.split(/\n{2,}/).map((p) => p.replace(/\s+/g, " ").trim()).filter(Boolean)) {
       for (let i = 0; i < p.length; i += 1800) lines.push({ text: p.slice(i, i + 1800) });
       if (lines.length >= 100) break;
     }
     if (!lines.length) return;
-    speakingTurn = t; speaking = true; refreshSpeakButtons();
+    speakingTurn = t; speaking = true; refreshSpeakButtons(); Avatar.setState("talking");
     tts.speak(lines.slice(0, 100), { voice: "rounded" }).catch((e) => {
       if (e && e.code === "not_granted") { tts = null; document.querySelectorAll(".tool.speak").forEach((b) => b.remove()); }
-    });
+    }).finally(() => { if (!busy) idleAvatar(); });
   }
 
+  // ---------- 3D quiz deck ----------
+  const LETTERS = "ABCDEF";
   function renderQuiz(t) {
-    const q = t.quiz; t.picks = t.picks || [];
-    const card = el("div", "card quiz");
-    const head = el("div"); head.append(el("h3", null, q.title));
-    const prog = el("div", "progress"); head.append(prog);
-    card.append(head);
-    const scoreBox = el("div", "score"); scoreBox.hidden = true;
-    const letters = "ABCDEF";
+    const q = t.quiz, total = q.questions.length;
+    let picks = normPicks(t);
+    if (t.pos == null || t.pos > total) { const f = picks.findIndex((p) => !p); t.pos = f === -1 ? total : f; }
+    const deck = el("div", "deck");
+    const top = el("div", "deck-top"); const count = el("span", "deck-count");
+    top.append(el("h3", null, q.title), count);
+    const stage = el("div", "stage"); stage.tabIndex = 0; stage.setAttribute("aria-label", "Quiz cards. Use 1 to 4 to answer, Enter for next.");
+    const dots = el("div", "dots");
+    const bar = el("div", "deck-bar");
+    const prev = button("btn", "‹ Back", () => go(t.pos - 1, -1));
+    const pdfBtn = button("btn"); pdfBtn.innerHTML = PDF_SVG + "<span>Worksheet PDF</span>"; pdfBtn.onclick = () => savePdfFor(t, pdfBtn);
+    const grp = el("div", "grp"); grp.append(pdfBtn);
+    bar.append(prev, grp);
+    deck.append(top, stage, dots, bar);
 
-    const update = () => {
-      const answered = t.picks.filter((p) => p != null).length;
-      const right = q.questions.filter((x, i) => t.picks[i] === x.answer).length;
-      prog.textContent = `${answered} of ${q.questions.length} answered`;
-      if (answered === q.questions.length) {
-        scoreBox.hidden = false; scoreBox.textContent = "";
-        scoreBox.append(el("span", "num", `${right}/${q.questions.length}`));
-        const msg = right === q.questions.length ? "Perfect score!" : right >= q.questions.length * 0.7 ? "Nice work." : "Good practice. Let's fix the ones you missed.";
-        scoreBox.append(el("span", null, msg));
-        const btn = el("button", "btn primary"); btn.type = "button";
-        if (right < q.questions.length) {
-          btn.textContent = "Go over my mistakes";
-          btn.onclick = () => {
-            const missed = q.questions.map((x, i) => t.picks[i] !== x.answer ? `#${i + 1}` : null).filter(Boolean).join(", ");
-            send(`Hey Nawras, I got ${right}/${q.questions.length} on the quiz. Go over the ones I missed (${missed}).`);
-          };
-        } else {
-          btn.textContent = "Make it harder";
-          btn.onclick = () => send("Hey Nawras, make me a harder quiz like that.");
-        }
-        scoreBox.append(btn);
-      }
-    };
+    const store_ = (i, p) => { if (!t.picks) t.picks = []; t.picks[i] = p; picks = normPicks(t); save(); };
+    function go(i, dir = 1) { if (i < 0 || i > total) return; t.pos = i; draw(dir); }
 
-    q.questions.forEach((x, i) => {
-      const box = el("div", "qq");
-      const qt = el("div", "qt"); qt.append(el("span", null, `${i + 1}.`), document.createTextNode(x.q));
-      box.append(qt);
-      const ch = el("div", "choices");
-      const why = el("div", "why"); why.hidden = true;
-      const btns = x.choices.map((c, j) => {
-        const b = el("button", "choice"); b.type = "button";
-        b.append(el("span", "l", letters[j]), el("span", null, c));
-        b.onclick = () => { if (t.picks[i] != null) return; t.picks[i] = j; save(); paint(); update(); };
-        ch.append(b); return b;
+    function draw(dir) {
+      stage.textContent = "";
+      const deal = el("div", "deal " + (dir < 0 ? "back-in" : dir > 0 ? "in" : ""));
+      deal.append(t.pos >= total ? scoreCard() : questionCard(t.pos));
+      stage.append(deal);
+      stage.classList.toggle("last", t.pos >= total - 1);
+      const answered = picks.filter(Boolean).length;
+      count.textContent = t.pos >= total ? `${answered} of ${total} answered` : `Question ${t.pos + 1} of ${total}`;
+      prev.disabled = t.pos === 0;
+      dots.textContent = "";
+      q.questions.forEach((_, i) => {
+        const p = picks[i];
+        const d = button("dot" + (p ? (p.ok ? " ok" : " no") : "") + (i === t.pos ? " cur" : ""), String(i + 1), () => go(i, i < t.pos ? -1 : 1));
+        d.setAttribute("aria-label", `Question ${i + 1}${p ? (p.ok ? ", correct" : ", wrong") : ""}`);
+        dots.append(d);
       });
-      const paint = () => {
-        const p = t.picks[i];
-        if (p == null) return;
-        btns.forEach((b, j) => {
-          b.disabled = true;
-          if (j === x.answer) b.classList.add("right");
-          else if (j === p) b.classList.add("wrong");
-        });
-        why.hidden = false; why.textContent = "";
-        const ok = p === x.answer;
-        why.append(el("b", ok ? "ok" : "no", ok ? "Correct. " : `Not quite. It's ${letters[x.answer]}. `), document.createTextNode(x.why || ""));
+    }
+
+    function questionCard(i) {
+      const x = q.questions[i], p = picks[i];
+      const flip = el("div", "flip" + (p ? " flipped" : ""));
+      const front = el("div", "face front"), back = el("div", "face back");
+      const head = el("div", "qhead");
+      head.append(el("span", "qnum", `Question ${i + 1} / ${total}`), el("span", "qtype", x.type === "tf" ? "True or false" : x.type === "fill" ? "Type the answer" : "Multiple choice"));
+      front.append(head, el("p", "qtext", x.q));
+      const answer = (v) => {
+        if (picks[i]) return;
+        const ok = x.type === "fill" ? fillOk(x, v) : v === x.answer;
+        store_(i, { v, ok });
+        Avatar.react(ok ? "happy" : "oops");
+        fillBack(back, x, picks[i], i);
+        flip.classList.add("flipped");
+        draw0();
+        setTimeout(() => { const n = back.querySelector(".btn.primary"); if (n) n.focus({ preventScroll: true }); }, reduceMotion.matches ? 0 : 450);
       };
-      paint();
-      box.append(ch, why);
-      card.append(box);
-    });
-    card.append(scoreBox);
-    update();
-    return card;
+      if (x.type === "fill") {
+        const f = el("form", "fill");
+        const inp = el("input"); inp.type = "text"; inp.placeholder = "Your answer"; inp.id = `fill-${i}-${Math.random().toString(36).slice(2, 7)}`; inp.setAttribute("aria-label", "Your answer"); inp.autocomplete = "off";
+        const chk = el("button", "btn primary", "Check"); chk.type = "submit";
+        f.append(inp, chk);
+        f.onsubmit = (e) => { e.preventDefault(); if (inp.value.trim()) answer(inp.value.trim()); };
+        front.append(f);
+        if (!p) setTimeout(() => inp.focus({ preventScroll: true }), 300);
+      } else {
+        const ch = el("div", "choices" + (x.type === "tf" ? " tf" : ""));
+        x.choices.forEach((c, j) => {
+          const b = button("choice", null, () => answer(j));
+          b.append(el("span", "l", x.type === "tf" ? (j === 0 ? "T" : "F") : LETTERS[j]), el("span", null, c));
+          ch.append(b);
+        });
+        front.append(ch);
+        stage.onkeydown = (e) => {
+          if (t.pos !== i || picks[i] || e.target.tagName === "INPUT") return;
+          const k = e.key.toLowerCase(), idx = /^[1-6]$/.test(k) ? +k - 1 : LETTERS.toLowerCase().indexOf(k);
+          if (idx >= 0 && idx < x.choices.length) { e.preventDefault(); answer(idx); }
+        };
+      }
+      if (p) fillBack(back, x, p, i);
+      flip.append(front, back);
+      return flip;
+    }
+    // refresh the header + dots without re-dealing the card
+    function draw0() {
+      const answered = picks.filter(Boolean).length;
+      count.textContent = `Question ${t.pos + 1} of ${total}`;
+      [...dots.children].forEach((d, i) => { const p = picks[i]; d.className = "dot" + (p ? (p.ok ? " ok" : " no") : "") + (i === t.pos ? " cur" : ""); });
+      return answered;
+    }
+    function fillBack(back, x, p, i) {
+      back.textContent = "";
+      const r = el("div", "result " + (p.ok ? "ok" : "no"));
+      const txt = el("div"); txt.append(el("b", null, p.ok ? "Correct!" : "Not quite"), el("span", null, p.ok ? "Nice work." : "Here's the right answer."));
+      r.append(el("span", "ico", p.ok ? "✓" : "✗"), txt);
+      const kv = el("div", "kv");
+      const a = el("div"); a.append(el("small", null, "Answer"), document.createTextNode(x.type === "mc" ? `${LETTERS[x.answer]}. ${x.choices[x.answer]}` : correctText(x)));
+      kv.append(a);
+      if (!p.ok) { const y = el("div"); y.append(el("small", null, "You said"), document.createTextNode(pickText(x, p))); kv.append(y); }
+      if (x.why) { const w = el("div"); w.append(el("small", null, "Why"), document.createTextNode(x.why)); kv.append(w); }
+      const row = el("div", "row");
+      if (x.type === "fill" && !p.ok) row.append(button("btn", "I had it right", () => { store_(i, { v: p.v, ok: true }); fillBack(back, x, picks[i], i); draw0(); Avatar.react("happy"); }));
+      row.append(button("btn primary", i + 1 < total ? "Next question ›" : "See my score ›", () => go(i + 1, 1)));
+      back.append(el("div", "qhead"), r, kv, row);
+      back.firstChild.append(el("span", "qnum", `Question ${i + 1} / ${total}`));
+      back.onkeydown = (e) => { if (e.key === "ArrowRight") go(i + 1, 1); };
+    }
+    function scoreCard() {
+      const right = picks.filter((p) => p && p.ok).length, answered = picks.filter(Boolean).length;
+      const face = el("div", "face score-face");
+      const ring = el("div", "ring"); ring.style.setProperty("--p", Math.round((right / total) * 100));
+      ring.append(el("div", null, `${right}/${total}`));
+      const msg = answered < total ? `You've answered ${answered} of ${total}. Tap a number below to finish the rest.`
+        : right === total ? "Perfect score! Nawras is doing a backflip." : right >= total * 0.7 ? "Nice work. A couple more to lock in." : "Good practice. Let's go over the ones you missed.";
+      face.append(el("div", "qnum", "Your score"), ring, el("p", null, msg));
+      const row = el("div", "row");
+      if (answered === total) {
+        if (right < total) {
+          const missed = q.questions.map((_, i) => (picks[i] && !picks[i].ok ? `#${i + 1}` : null)).filter(Boolean).join(", ");
+          row.append(button("btn primary", "Go over my mistakes", () => send(`Hey Nawras, I got ${right}/${total} on the quiz. Go over the ones I missed (${missed}).`)));
+        } else row.append(button("btn primary", "Make it harder", () => send("Hey Nawras, make me a harder quiz like that.")));
+      }
+      row.append(button("btn", "Try again", () => { t.picks = []; picks = normPicks(t); save(); go(0, 1); }));
+      face.append(row);
+      if (answered === total && right === total) setTimeout(() => Avatar.react("happy"), 300);
+      return face;
+    }
+    draw(0);
+    return deck;
+  }
+
+  // ---------- 3D flashcards ----------
+  function renderCards(t) {
+    const d = t.deck;
+    if (!Array.isArray(t.order) || !t.order.length || t.order.some((i) => i >= d.cards.length)) t.order = d.cards.map((_, i) => i);
+    t.known = t.known || {};
+    if (t.pos == null || t.pos > t.order.length) t.pos = 0;
+    let flipped = false;
+    const deck = el("div", "deck");
+    const top = el("div", "deck-top"); const count = el("span", "deck-count");
+    top.append(el("h3", null, d.title), count);
+    const stage = el("div", "stage"); stage.tabIndex = 0; stage.setAttribute("aria-label", "Flashcards. Space to flip, arrows to move.");
+    const bar = el("div", "deck-bar");
+    const prev = button("btn", "‹", () => go(t.pos - 1, -1)); prev.setAttribute("aria-label", "Previous card");
+    const next = button("btn", "›", () => go(t.pos + 1, 1)); next.setAttribute("aria-label", "Next card");
+    const nope = button("btn", "Still learning", () => mark(false));
+    const yes = button("btn primary", "Got it", () => mark(true));
+    const mid = el("div", "grp"); mid.append(nope, yes);
+    bar.append(prev, mid, next);
+    const extra = el("div", "deck-bar");
+    const shuffle = button("btn", "Shuffle", () => { for (let i = t.order.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [t.order[i], t.order[j]] = [t.order[j], t.order[i]]; } save(); go(0, 1); });
+    const pdfBtn = button("btn"); pdfBtn.innerHTML = PDF_SVG + "<span>Flashcard PDF</span>"; pdfBtn.onclick = () => savePdfFor(t, pdfBtn);
+    const quizBtn = button("btn", "Quiz me on these", () => send("Hey Nawras, make me a quiz on these flashcards."));
+    const g2 = el("div", "grp"); g2.append(shuffle, pdfBtn);
+    extra.append(g2, quizBtn);
+    deck.append(top, stage, bar, extra);
+
+    function mark(v) { if (t.pos >= t.order.length) return; t.known[t.order[t.pos]] = v; save(); Avatar.react(v ? "happy" : "oops"); go(t.pos + 1, 1); }
+    function go(i, dir) { if (i < 0 || i > t.order.length) return; t.pos = i; flipped = false; draw(dir); }
+    function draw(dir) {
+      stage.textContent = "";
+      const deal = el("div", "deal " + (dir < 0 ? "back-in" : dir > 0 ? "in" : ""));
+      const knownCount = d.cards.filter((_, i) => t.known[i] === true).length;
+      count.textContent = t.pos >= t.order.length ? `${knownCount} of ${d.cards.length} known` : `Card ${t.pos + 1} of ${t.order.length} · ${knownCount} known`;
+      stage.classList.toggle("last", t.pos >= t.order.length - 1);
+      prev.disabled = t.pos === 0; next.disabled = t.pos >= t.order.length;
+      nope.disabled = yes.disabled = t.pos >= t.order.length;
+      if (t.pos >= t.order.length) {
+        const face = el("div", "face score-face");
+        const ring = el("div", "ring"); ring.style.setProperty("--p", Math.round((knownCount / d.cards.length) * 100));
+        ring.append(el("div", null, `${knownCount}/${d.cards.length}`));
+        const left = d.cards.map((_, i) => i).filter((i) => t.known[i] !== true);
+        face.append(el("div", "qnum", "Deck done"), ring, el("p", null, left.length ? `${left.length} card${left.length === 1 ? "" : "s"} still to learn.` : "You know every card. Nice!"));
+        const row = el("div", "row");
+        if (left.length) row.append(button("btn primary", `Study the ${left.length} again`, () => { t.order = left; save(); go(0, 1); }));
+        row.append(button("btn", "Start over", () => { t.order = d.cards.map((_, i) => i); t.known = {}; save(); go(0, 1); }));
+        face.append(row); deal.append(face);
+      } else {
+        const idx = t.order[t.pos], c = d.cards[idx];
+        const flip = el("div", "flip fcard");
+        const front = el("div", "face front"), back = el("div", "face back");
+        const st = t.known[idx] === true ? " · known" : t.known[idx] === false ? " · learning" : "";
+        front.append(el("span", "side-l", "Front" + st), el("div", "big", c.front), el("span", "hint2", "Tap to flip"));
+        back.append(el("span", "side-l", "Back"), el("div", "big", c.back), el("span", "hint2", "Tap to flip back"));
+        flip.append(front, back);
+        flip.onclick = () => { flipped = !flipped; flip.classList.toggle("flipped", flipped); };
+        deal.append(flip);
+      }
+      stage.append(deal);
+    }
+    stage.onkeydown = (e) => {
+      if (e.key === " " || e.key === "Enter") { e.preventDefault(); const f = stage.querySelector(".fcard"); if (f) f.click(); }
+      else if (e.key === "ArrowRight") go(t.pos + 1, 1);
+      else if (e.key === "ArrowLeft") go(t.pos - 1, -1);
+    };
+    draw(0);
+    return deck;
   }
 
   // ---------- composer ----------
@@ -1050,7 +1844,6 @@ Reply with only JSON in this exact shape, no other text:
     $("#msg").value = ""; autosize(); updateSend();
     send(v);
   }
-
   function renderAsks() {
     const asks = $("#asks"), quick = $("#quick");
     for (const a of ASKS) {
@@ -1059,10 +1852,8 @@ Reply with only JSON in this exact shape, no other text:
         if (a.fill) { const m = $("#msg"); m.value = a.fill; autosize(); updateSend(); m.focus(); m.setSelectionRange(m.value.length, m.value.length); }
         else send(a.text);
       };
-      const b = el("button", "ask"); b.type = "button"; b.append(el("b", null, a.label), el("small", null, a.sub)); b.onclick = run;
-      asks.append(b);
-      const c = el("button", "chip", a.label); c.type = "button"; c.onclick = run;
-      quick.append(c);
+      const b = button("ask", null, run); b.append(el("b", null, a.label), el("small", null, a.sub)); asks.append(b);
+      quick.append(button("chip", a.label, run));
     }
   }
 
@@ -1075,7 +1866,7 @@ Reply with only JSON in this exact shape, no other text:
     dict.onFinal(({ text }) => { dictFinal = join(dictFinal, text); msg.value = join(dictBase, dictFinal); autosize(); updateSend(); });
     dict.onState(({ state, reason }) => {
       const was = dictState; dictState = state;
-      const on = state === "listening" || state === "starting" || state === "finishing";
+      const on = state !== "idle";
       mic.classList.toggle("live", on);
       mic.setAttribute("aria-label", on ? "Stop listening and send" : "Talk to Nawras");
       $("#hint").textContent = on ? "Listening… say “Hey Nawras, …” then tap the mic to send" : "Enter to send · Shift+Enter for a new line";
@@ -1087,9 +1878,7 @@ Reply with only JSON in this exact shape, no other text:
     mic.onclick = () => {
       if (dictState !== "idle") { dict.stop().catch(() => {}); return; }
       dictBase = msg.value; dictFinal = "";
-      dict.start().catch((e) => {
-        if (e && (e.code === "not_granted" || e.code === "unavailable")) { mic.hidden = true; $("#voiceTip").hidden = true; }
-      });
+      dict.start().catch((e) => { if (e && (e.code === "not_granted" || e.code === "unavailable")) { mic.hidden = true; $("#voiceTip").hidden = true; } });
     };
   }
 
@@ -1119,9 +1908,7 @@ Reply with only JSON in this exact shape, no other text:
   $("#newTopic").addEventListener("click", showStart);
   $("#composer").addEventListener("submit", (e) => { e.preventDefault(); submitComposer(); });
   $("#msg").addEventListener("input", () => { autosize(); updateSend(); });
-  $("#msg").addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); if (!busy) submitComposer(); }
-  });
+  $("#msg").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); if (!busy) submitComposer(); } });
 
   const resume = store.currentId && store.sessions.find((s) => s.id === store.currentId);
   if (resume) showChat(resume); else showStart();

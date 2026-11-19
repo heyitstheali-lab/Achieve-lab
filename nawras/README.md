@@ -8,10 +8,20 @@ ask things like:
 - "Hey Nawras, help me with this"
 - "Hey Nawras, make me a study guide about this"
 - "Hey Nawras, how do I add this to this?"
-- "Hey Nawras, make me a quiz like that" (gives you a quiz you can click through)
+- "Hey Nawras, make me a quiz like that" (a 3D card deck: multiple choice,
+  true/false and type-the-answer questions that flip to show if you were right)
+- "Hey Nawras, make me flashcards" (flip cards you sort into "Got it" and "Still learning")
+- "Hey Nawras, make me a study guide PDF" or "turn that into a PDF"
 - "Hey Nawras, help me teach this to someone else" (gives you a mini lesson plan)
 
 How it works:
+
+- **3D Nawras** is a little 3D tutor in a graduation cap (built with three.js). He
+  follows your mouse, thinks while Claude works, talks while answering, and hops
+  or shakes when you get quiz answers right or wrong.
+- **PDFs** are made in the page with jsPDF: study guides and notes, quiz
+  worksheets with an answer key page, and fold-and-cut flashcard sheets. Every
+  reply also has a **Save as PDF** button.
 
 - It uses your own Claude account through the page, so you don't need an API key.
   The first time you ask something, Claude asks you to allow it.
@@ -26,4 +36,5 @@ How it works:
   left off.
 
 `nawras.html` is the page source. To change it, edit the file and republish it
-as an artifact with the `sample`, `dictation` and `tts` capabilities.
+as an artifact with the `sample` (with images), `dictation`, `tts` and
+`downloads` capabilities.
